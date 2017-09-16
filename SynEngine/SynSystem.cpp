@@ -135,8 +135,18 @@ bool SynSystem::Frame()
 		m_Graphics->ChangeCameraPosition(0);
 	}
 
+	int way=0;
+	if (m_Input->IsKeyDown(VK_LEFT))
+	{
+		way = 1;
+	}
+	if (m_Input->IsKeyDown(VK_RIGHT))
+	{
+		way = 2;
+	}
+
 	// Do the frame processing for the graphics object.
-	result = m_Graphics->Frame();
+	result = m_Graphics->Frame(way);
 	if (!result)
 	{
 		return false;
@@ -171,13 +181,6 @@ LRESULT CALLBACK SynSystem::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, 
 		return 0;
 	}
 
-	//case WM_MOUSEWHEEL:
-	//{
-	//	// If a key is released then send it to the input object so it can unset the state for that key.
-	//	m_Input->KeyUp((unsigned int)wparam);
-	//	return 0;
-	//}
-	// Any other messages send to the default message handler as our application won't make use of them.
 	default:
 	{
 		return DefWindowProc(hwnd, umsg, wparam, lparam);

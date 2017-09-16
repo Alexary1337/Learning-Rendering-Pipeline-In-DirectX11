@@ -46,7 +46,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 2.0f, -10.0f);
 	// Create the model object.
 	m_Model = new SynModel;
 	if (!m_Model)
@@ -55,7 +55,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/gold.dds", "../SynEngine/data/cube.txt");
+	result = m_Model->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/gold.dds", "../SynEngine/data/skull.txt");
 	if (!result)
 	{
 		MessageBox(hwnd, "Could not initialize the model object.", "Error", MB_OK);
@@ -135,7 +135,7 @@ void SynGraphics::Shutdown()
 	return;
 }
 
-bool SynGraphics::Frame()
+bool SynGraphics::Frame(int way)
 {
 	bool result;
 
@@ -143,7 +143,15 @@ bool SynGraphics::Frame()
 
 
 	// Update the rotation variable each frame.
-	rotation += (float)D3DX_PI * 0.003f;
+	if (way==1)
+	{
+		rotation += (float)D3DX_PI * 0.003f;
+	}
+	if (way == 2)
+	{
+		rotation -= (float)D3DX_PI * 0.003f;
+	}
+
 	if (rotation > 360.0f)
 	{
 		rotation -= 360.0f;
@@ -177,7 +185,9 @@ bool SynGraphics::Render(float rotation)
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
-	D3DXMatrixRotationY(&worldMatrix, rotation);
+	if (rotation!=0){
+		D3DXMatrixRotationY(&worldMatrix, rotation);
+	}
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext());
