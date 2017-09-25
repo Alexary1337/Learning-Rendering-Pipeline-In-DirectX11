@@ -6,31 +6,26 @@ This project is based on [Rastertek's tutorials](http://www.rastertek.com).
 ![Promo](ReadmeData/skullWF.png)
 
 
-### Temporary
-<br/>
-## 1.
-<br/>
+## Temporary
+### 1.
 func number <br/>
 &nbsp; &nbsp; &nbsp; | number == 0 = [] <br/>
 &nbsp; &nbsp; &nbsp; | otherwise = mod number 10 : func (div number 10) <br/>
 <br/>
-## 2. 
-<br/>
+### 2.
 func word <br/>
 &nbsp; &nbsp; &nbsp; | length word <= 1 = True <br/>
 &nbsp; &nbsp; &nbsp; | head word /= last word = False <br/>
 &nbsp; &nbsp; &nbsp; | otherwise = func (init(tail word)) <br/>
 <br/>
-## 3. 
-<br/>
+### 3.
 max [x] = x <br/>  
 max (x:xs) <br/>   
 &nbsp; &nbsp; &nbsp; | x > maxTail = x <br/>
 &nbsp; &nbsp; &nbsp; | otherwise = maxTail <br/>
 &nbsp; &nbsp; where maxTail = max xs <br/>
 <br/>
-## 4. 
-<br/>
+### 4.
 func num <br/>
 &nbsp; &nbsp; &nbsp; | num == 2 = True <br/>
 &nbsp; &nbsp; &nbsp; | mod num 2 == 0 = func(div num 2) <br/>
