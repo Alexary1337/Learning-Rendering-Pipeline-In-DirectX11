@@ -17,8 +17,8 @@ func word <br/>
 &nbsp; &nbsp; &nbsp; | head word /= last word = False <br/>
 &nbsp; &nbsp; &nbsp; | otherwise = func (init(tail word)) <br/>
 ### 3.
-max [x] = x <br/>  
-max (x:xs) <br/>   
+max [x] = x
+max (x:xs) 
 &nbsp; &nbsp; &nbsp; | x > maxTail = x <br/>
 &nbsp; &nbsp; &nbsp; | otherwise = maxTail <br/>
 &nbsp; &nbsp; where maxTail = max xs <br/>
