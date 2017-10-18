@@ -6,7 +6,7 @@ This project is based on [Rastertek's tutorials](http://www.rastertek.com).
 ![Promo](ReadmeData/skullWF.png)
 
 
-## Temporary
+## HM1
 ### 1.
 func number <br/>
 &nbsp; &nbsp; &nbsp; | number == 0 = [] <br/>
@@ -26,4 +26,26 @@ max (x:xs) <br/>
 func num <br/>
 &nbsp; &nbsp; &nbsp; | num == 2 = True <br/>
 &nbsp; &nbsp; &nbsp; | mod num 2 == 0 = func(div num 2) <br/>
+&nbsp; &nbsp; &nbsp; | otherwise = False <br/>
+
+## HM2
+### 1. ZipWith
+zipWith _ [] _ = [] <br/>
+zipWith _ _ [] = [] <br/>
+zipWith f (a:as) (b:bs) = [f a b] ++ zipWith f as bs <br/>
+sum a b = a + b <br/>
+### 2. Flip
+flip f a b = f a b <br/>
+sum a b = a + b <br/>
+### 3. Map
+map _ [] = [] <br/>
+map f (a:as) = [f a] ++ map f as <br/>
+sum a b = a + b <br/>
+### 4. Filter
+filter _ [] = [] <br/>
+filter f (a:as) <br/> 
+&nbsp; &nbsp; &nbsp; | f a == True = [a] ++ filter f as <br/>
+&nbsp; &nbsp; &nbsp; | otherwise = filter f as <br/>
+isOdd a <br/>
+&nbsp; &nbsp; &nbsp; | rem a 2 /= 0 = True <br/>
 &nbsp; &nbsp; &nbsp; | otherwise = False <br/>
