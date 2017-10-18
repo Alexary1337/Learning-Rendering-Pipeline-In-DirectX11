@@ -5,7 +5,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	SynSystem* System;
 	bool result;
 
-
 	// Create the system object.
 	System = new SynSystem;
 	if (!System)

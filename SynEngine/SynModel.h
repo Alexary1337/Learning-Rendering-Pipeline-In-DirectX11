@@ -44,6 +44,8 @@ private:
 
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
+	
+	bool LoadModelAssimp(char*);
 
 	bool LoadModel(char*);
 	void ReleaseModel();
@@ -55,6 +57,7 @@ private:
 	SynTexture* m_Texture;
 
 	ModelType* m_model;
+	unsigned long* m_indices;
 };
 
 #endif

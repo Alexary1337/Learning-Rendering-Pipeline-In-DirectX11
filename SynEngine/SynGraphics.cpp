@@ -7,6 +7,7 @@ SynGraphics::SynGraphics()
 	m_Model = 0;
 	m_ColorShader = 0;
 	m_Light = 0;
+	m_Text = 0;
 }
 
 SynGraphics::SynGraphics(const SynGraphics& other)
@@ -22,6 +23,9 @@ SynGraphics::~SynGraphics()
 bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	bool result;
+
+	D3DXMATRIX baseViewMatrix;
+
 
 	// Create the Direct3D object.
 	m_D3D = new SynD3D;
@@ -46,7 +50,11 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 2.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 50.0f, -250.0f);
+
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(baseViewMatrix);
+
 	// Create the model object.
 	m_Model = new SynModel;
 	if (!m_Model)
@@ -55,12 +63,12 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/gold.dds", "../SynEngine/data/skull.txt");
+	result = m_Model->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/gtr.3ds");
 	if (!result)
 	{
-		MessageBox(hwnd, "Could not initialize the model object.", "Error", MB_OK);
+		MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
 		return false;
-	}
+	}	
 
 	// Create the color shader object.
 	m_ColorShader = new SynColorShader;
@@ -91,11 +99,35 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(64.0f);
 
+
+	// Create the text object.
+	m_Text = new SynText;
+	if (!m_Text)
+	{
+		return false;
+	}
+
+	// Initialize the text object.
+	result = m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+	if (!result)
+	{
+		MessageBox(hwnd, "Could not initialize the text object.", "Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 void SynGraphics::Shutdown()
 {
+	// Release the text object.
+	if (m_Text)
+	{
+		m_Text->Shutdown();
+		delete m_Text;
+		m_Text = 0;
+	}
+	
 	// Release the light object.
 	if (m_Light)
 	{
@@ -169,7 +201,7 @@ bool SynGraphics::Frame(int way)
 
 bool SynGraphics::Render(float rotation)
 {
-	D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix;
+	D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 	bool result;
 
 
@@ -183,11 +215,32 @@ bool SynGraphics::Render(float rotation)
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
+	m_D3D->GetOrthoMatrix(orthoMatrix);
 
-	// Rotate the world matrix by the rotation value so that the triangle will spin.
-	if (rotation!=0){
-		D3DXMatrixRotationY(&worldMatrix, rotation);
+	// Turn off the Z buffer to begin all 2D rendering.
+	m_D3D->TurnZBufferOff();
+
+	// Turn on the alpha blending before rendering the text.
+	m_D3D->TurnOnAlphaBlending();
+
+	// Render the text strings.
+	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+	if (!result)
+	{
+		return false;
 	}
+
+	// Turn off alpha blending after rendering the text.
+	m_D3D->TurnOffAlphaBlending();
+	
+	// Turn the Z buffer back on now that all 2D rendering has completed.
+	m_D3D->TurnZBufferOn();
+
+	//TODO: fix this scary thing
+	if (rotation!=0){
+		D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, -300, 0);
+	}
+	else D3DXMatrixRotationYawPitchRoll(&worldMatrix, 0, -300, 0);
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext());
@@ -223,10 +276,10 @@ void SynGraphics::ChangeCameraPosition(bool way)
 	D3DXVECTOR3 pos = m_Camera->GetPosition();
 	if (way)
 	{
-		m_Camera->SetPosition(pos.x, pos.y, pos.z + 0.5f);
+		m_Camera->SetPosition(pos.x, pos.y, pos.z + 10.5f);
 	}
 	else
 	{
-		m_Camera->SetPosition(pos.x, pos.y, pos.z - 0.5f);
+		m_Camera->SetPosition(pos.x, pos.y, pos.z - 10.5f);
 	}
 }

@@ -6,8 +6,10 @@
 #include "synmodel.h"
 #include "syncolorshader.h"
 #include "synlight.h"
+#include "syntext.h"
+#include "synbitmap.h"
 
-const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 7000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -34,6 +36,7 @@ private:
 	SynModel* m_Model;
 	SynColorShader* m_ColorShader;
 	SynLight* m_Light;
+	SynText* m_Text;
 };
 
 #endif

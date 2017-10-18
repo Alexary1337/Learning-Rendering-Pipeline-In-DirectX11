@@ -1,4 +1,8 @@
 #include "synmodel.h"
+#include <assimp\cimport.h>
+#include <assimp\postprocess.h>
+#include <assimp\scene.h>
+#include <vector>
 
 SynModel::SynModel()
 {
@@ -6,6 +10,7 @@ SynModel::SynModel()
 	m_indexBuffer = 0;
 	m_Texture = 0;
 	m_model = 0;
+	m_indices = 0;
 }
 
 SynModel::SynModel(const SynModel& other)
@@ -23,7 +28,7 @@ bool SynModel::Initialize(ID3D11Device* device, WCHAR* textureFilename, char* mo
 	bool result;
 
 	// Load in the model data,
-	result = LoadModel(modelFilename);
+	result = LoadModelAssimp(modelFilename);
 	if (!result)
 	{
 		return false;
@@ -81,16 +86,9 @@ ID3D11ShaderResourceView* SynModel::GetTexture()
 bool SynModel::InitializeBuffers(ID3D11Device* device)
 {
 	VertexType* vertices;
-	unsigned long* indices;
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
-
-	// Set the number of vertices in the vertex array.
-	//m_vertexCount = 16;
-
-	// Set the number of indices in the index array.
-	//m_indexCount = 24;
 
 	// Create the vertex array.
 	vertices = new VertexType[m_vertexCount];
@@ -99,22 +97,12 @@ bool SynModel::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	// Create the index array.
-	indices = new unsigned long[m_indexCount];
-	if (!indices)
-	{
-		return false;
-	}
-
-	int temp = 0;
 	// Load the vertex array and index array with data.
 	for(int i=0; i<m_vertexCount; i++)
 	{
 		vertices[i].position = D3DXVECTOR3(m_model[i].x, m_model[i].y, m_model[i].z);
 		vertices[i].texture = D3DXVECTOR2(m_model[i].tu, m_model[i].tv);
 		vertices[i].normal = D3DXVECTOR3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
-
-		indices[i] = i;
 	}
 
 	// Set up the description of the static vertex buffer.
@@ -146,7 +134,7 @@ bool SynModel::InitializeBuffers(ID3D11Device* device)
 	indexBufferDesc.StructureByteStride = 0;
 
 	// Give the subresource structure a pointer to the index data.
-	indexData.pSysMem = indices;
+	indexData.pSysMem = m_indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -161,8 +149,9 @@ bool SynModel::InitializeBuffers(ID3D11Device* device)
 	delete[] vertices;
 	vertices = 0;
 
-	delete[] indices;
-	indices = 0;
+	delete[] m_indices;
+	m_indices = 0;
+	
 
 	return true;
 }
@@ -241,61 +230,66 @@ void SynModel::ReleaseTexture()
 	return;
 }
 
-bool SynModel::LoadModel(char* filename)
+bool SynModel::LoadModelAssimp(char* filename)
 {
-	ifstream fin;
-	char input;
-	int i;
-
-	// Open the model file.
-	fin.open(filename);
-
-	// If it could not open the file then exit.
-	if (fin.fail())
+	const aiScene* importedModel = aiImportFile(filename, aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	if (!importedModel)
 	{
 		return false;
 	}
 
-	// Read up to the value of vertex count.
-	fin.get(input);
-	while (input != ':')
+	m_vertexCount = importedModel->mMeshes[0]->mNumVertices;
+
+	std::vector<unsigned long> indicesVector;
+	for (int i = 0; i < importedModel->mMeshes[0]->mNumFaces; i++) {
+		const aiFace& Face = importedModel->mMeshes[0]->mFaces[i];
+		if (Face.mNumIndices == 3) {
+			indicesVector.push_back(Face.mIndices[0]);
+			indicesVector.push_back(Face.mIndices[1]);
+			indicesVector.push_back(Face.mIndices[2]);
+		}
+	}
+	m_indexCount = indicesVector.size();
+
+	// Create the index array.
+	m_indices = new unsigned long[indicesVector.size()];
+	if (!m_indices)
 	{
-		fin.get(input);
+		return false;
 	}
 
-	// Read in the vertex count.
-	fin >> m_vertexCount;
+	for (int i = 0; i < indicesVector.size(); i++)
+	{
+		m_indices[i] = indicesVector[i];
+	}
 
-	// Set the number of indices to be the same as the vertex count.
-	m_indexCount = m_vertexCount;
-
-	// Create the model using the vertex count that was read in.
 	m_model = new ModelType[m_vertexCount];
 	if (!m_model)
 	{
 		return false;
 	}
 
-	// Read up to the beginning of the data.
-	fin.get(input);
-	while (input != ':')
+	for (int i = 0; i<m_vertexCount; i++)
 	{
-		fin.get(input);
-	}
-	fin.get(input);
-	fin.get(input);
+		m_model[i].x = importedModel->mMeshes[0]->mVertices[i].x;
+		m_model[i].y = importedModel->mMeshes[0]->mVertices[i].y;
+		m_model[i].z = importedModel->mMeshes[0]->mVertices[i].z;
 
-	// Read in the vertex data.
-	for (i = 0; i<m_vertexCount; i++)
-	{
-		fin >> m_model[i].x >> m_model[i].y >> m_model[i].z;
-		fin >> m_model[i].tu >> m_model[i].tv;
-		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
+		m_model[i].tu = 1;
+		m_model[i].tv = 1;
+
+		m_model[i].nx = importedModel->mMeshes[0]->mNormals[i].x;
+		m_model[i].ny = importedModel->mMeshes[0]->mNormals[i].y;
+		m_model[i].nz = importedModel->mMeshes[0]->mNormals[i].z;
 	}
 
-	// Close the model file.
-	fin.close();
+	aiReleaseImport(importedModel);
 
+	return true;
+}
+
+bool SynModel::LoadModel(char* filename)
+{
 	return true;
 }
 
