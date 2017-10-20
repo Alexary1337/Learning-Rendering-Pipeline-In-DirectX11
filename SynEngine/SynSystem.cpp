@@ -2,8 +2,8 @@
 
 SynSystem::SynSystem()
 {
-	m_Input = 0;
-	m_Graphics = 0;
+	SAFE_INIT(m_Input);
+	SAFE_INIT(m_Graphics);
 }
 SynSystem::SynSystem(const SynSystem& other)
 {
@@ -20,7 +20,6 @@ bool SynSystem::Initialize()
 	int screenWidth, screenHeight;
 	bool result;
 
-
 	// Initialize the width and height of the screen to zero before sending the variables into the function.
 	screenWidth = 0;
 	screenHeight = 0;
@@ -30,27 +29,18 @@ bool SynSystem::Initialize()
 
 	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
 	m_Input = new SynInput;
-	if (!m_Input)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Input);
 
 	// Initialize the input object.
 	m_Input->Initialize();
 
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
 	m_Graphics = new SynGraphics;
-	if (!m_Graphics)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Graphics);
 
 	// Initialize the graphics object.
 	result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -61,16 +51,11 @@ void SynSystem::Shutdown()
 	if (m_Graphics)
 	{
 		m_Graphics->Shutdown();
-		delete m_Graphics;
-		m_Graphics = 0;
+		SAFE_DELETE(m_Graphics);
 	}
 
 	// Release the input object.
-	if (m_Input)
-	{
-		delete m_Input;
-		m_Input = 0;
-	}
+	SAFE_DELETE(m_Input);
 
 	// Shutdown the window.
 	ShutdownWindows();
@@ -147,10 +132,7 @@ bool SynSystem::Frame()
 
 	// Do the frame processing for the graphics object.
 	result = m_Graphics->Frame(way);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -193,7 +175,6 @@ void SynSystem::InitializeWindows(int& screenWidth, int& screenHeight)
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
 	int posX, posY;
-
 
 	// Get an external pointer to this object.
 	ApplicationHandle = this;
@@ -308,23 +289,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	switch (umessage)
 	{
 		// Check if the window is being destroyed.
-	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
 
-	// Check if the window is being closed.
-	case WM_CLOSE:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
+		// Check if the window is being closed.
+		case WM_CLOSE:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
 
-	// All other messages pass to the message handler in the system class.
-	default:
-	{
-		return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
-	}
+		// All other messages pass to the message handler in the system class.
+		default:
+		{
+			return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
+		}
 	}
 }

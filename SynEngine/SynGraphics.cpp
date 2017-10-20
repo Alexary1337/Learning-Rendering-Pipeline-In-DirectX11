@@ -53,19 +53,12 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 50.0f, -250.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -250.0f);
 
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
 
-
-
-
-
-
-
-
-
+	//TODO: refactor multi mesh rendering pipeline
 	m_meshCount = new int;
 	if (!m_meshCount)
 	{
@@ -78,10 +71,10 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-
-	const aiScene* importedModel = aiImportFile("../SynEngine/data/gtr.3ds", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	const aiScene* importedModel = aiImportFile("../SynEngine/data/torus.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
 	*m_meshCount = importedModel->mNumMeshes;
 	*m_totalIndexCount = 0;
+
 	// Create the model object.
 	m_Model = new SynModel[*m_meshCount];
 	if (!m_Model)
@@ -97,10 +90,10 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 			}
 		}
 
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/gtr.3ds",i);
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/torus.obj", i);
 		if (!result)
 		{
-			//MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
+			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
 			return false;
 		}
 	}
@@ -113,11 +106,6 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	//	MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
 	//	return false;
 	//}	
-
-
-
-
-
 
 	// Create the color shader object.
 	m_ColorShader = new SynColorShader;

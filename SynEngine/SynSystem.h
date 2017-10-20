@@ -2,10 +2,10 @@
 #define _SYSTEM_H_
 #define WIN32_LEAN_AND_MEAN
 
+#include "common.h"
 #include <windows.h>
 #include "syninput.h"
 #include "syngraphics.h"
-#include "common.h"
 
 class SynSystem
 {
