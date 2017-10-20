@@ -1,6 +1,7 @@
 #ifndef _TEXTURE_H_
 #define _TEXTURE_H_
 
+#include "common.h"
 #include <d3d11.h>
 #include <d3dx11tex.h>
 

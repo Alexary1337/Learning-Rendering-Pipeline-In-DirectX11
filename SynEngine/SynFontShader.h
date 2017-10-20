@@ -1,7 +1,7 @@
 #ifndef _FONTSHADER_H_
 #define _FONTSHADER_H_
 
-
+#include "common.h"
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include <d3dx11async.h>

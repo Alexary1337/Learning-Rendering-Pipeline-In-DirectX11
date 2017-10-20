@@ -91,6 +91,7 @@
     <ClCompile Include="SynTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common.h" />
     <ClInclude Include="SynBitmap.h" />
     <ClInclude Include="SynCamera.h" />
     <ClInclude Include="SynColorShader.h" />

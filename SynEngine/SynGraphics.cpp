@@ -8,6 +8,9 @@ SynGraphics::SynGraphics()
 	m_ColorShader = 0;
 	m_Light = 0;
 	m_Text = 0;
+
+	m_meshCount  =0;
+	m_totalIndexCount = 0;
 }
 
 SynGraphics::SynGraphics(const SynGraphics& other)
@@ -55,20 +58,66 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
 
+
+
+
+
+
+
+
+
+	m_meshCount = new int;
+	if (!m_meshCount)
+	{
+		return false;
+	}
+
+	m_totalIndexCount = new int;
+	if (!m_totalIndexCount)
+	{
+		return false;
+	}
+
+
+	const aiScene* importedModel = aiImportFile("../SynEngine/data/gtr.3ds", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	*m_meshCount = importedModel->mNumMeshes;
+	*m_totalIndexCount = 0;
 	// Create the model object.
-	m_Model = new SynModel;
+	m_Model = new SynModel[*m_meshCount];
 	if (!m_Model)
 	{
 		return false;
 	}
 
-	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/gtr.3ds");
-	if (!result)
+	for (int i = 0; i < 1; i++)
 	{
-		MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
-		return false;
-	}	
+		for (int j = 0; j < importedModel->mMeshes[i]->mNumFaces; j++) {
+			if (importedModel->mMeshes[i]->mFaces[j].mNumIndices == 3) {
+				*m_totalIndexCount += 3;
+			}
+		}
+
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/gtr.3ds",i);
+		if (!result)
+		{
+			//MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
+			return false;
+		}
+	}
+	aiReleaseImport(importedModel);
+
+	//// Initialize the model object.
+	//result = m_Model->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/gtr.3ds");
+	//if (!result)
+	//{
+	//	MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
+	//	return false;
+	//}	
+
+
+
+
+
 
 	// Create the color shader object.
 	m_ColorShader = new SynColorShader;
@@ -147,7 +196,7 @@ void SynGraphics::Shutdown()
 	if (m_Model)
 	{
 		m_Model->Shutdown();
-		delete m_Model;
+		delete[] m_Model;
 		m_Model = 0;
 	}
 
@@ -242,16 +291,27 @@ bool SynGraphics::Render(float rotation)
 	}
 	else D3DXMatrixRotationYawPitchRoll(&worldMatrix, 0, -300, 0);
 
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Model->Render(m_D3D->GetDeviceContext());
+	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//m_Model->Render(m_D3D->GetDeviceContext());
 
-	// Render the model using the color shader.
-	result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-	if (!result)
+	for (int i = 0; i < 1; i++)
 	{
-		return false;
+		m_Model[i].Render(m_D3D->GetDeviceContext());
+		result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model[i].GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(),
+				m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+			if (!result)
+			{
+				return false;
+			}
 	}
+
+	//// Render the model using the color shader.
+	//result = m_ColorShader->Render(m_D3D->GetDeviceContext(), *m_totalIndexCount, worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(),
+	//	m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	//if (!result)
+	//{
+	//	return false;
+	//}
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();

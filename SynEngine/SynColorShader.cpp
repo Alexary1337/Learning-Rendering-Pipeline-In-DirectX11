@@ -2,13 +2,13 @@
 
 SynColorShader::SynColorShader()
 {
-	m_vertexShader = 0;
-	m_pixelShader = 0;
-	m_layout = 0;
-	m_matrixBuffer = 0;
-	m_sampleState = 0;
-	m_cameraBuffer = 0;
-	m_lightBuffer = 0;
+	SAFE_INIT(m_vertexShader);
+	SAFE_INIT(m_pixelShader);
+	SAFE_INIT(m_layout);
+	SAFE_INIT(m_matrixBuffer);
+	SAFE_INIT(m_sampleState);
+	SAFE_INIT(m_cameraBuffer);
+	SAFE_INIT(m_lightBuffer);
 }
 
 SynColorShader::SynColorShader(const SynColorShader& other)
@@ -27,10 +27,7 @@ bool SynColorShader::Initialize(ID3D11Device* device, HWND hwnd)
 
 	// Initialize the vertex and pixel shaders.
 	result = InitializeShader(device, hwnd, L"../SynEngine/texture.vs", L"../SynEngine/texture.ps");
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -51,10 +48,7 @@ bool SynColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
 
 	// Set the shader parameters that it will use for rendering.
 	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambientColor, diffuseColor, cameraPosition, specularColor, specularPower);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Now render the prepared buffers with the shader.
 	RenderShader(deviceContext, indexCount);
@@ -170,11 +164,8 @@ bool SynColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	}
 
 	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
-
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
+	SAFE_RELEASE(vertexShaderBuffer);
+	SAFE_RELEASE(pixelShaderBuffer);
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -251,54 +242,25 @@ bool SynColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 void SynColorShader::ShutdownShader()
 {
 	// Release the camera constant buffer.
-	if (m_cameraBuffer)
-	{
-		m_cameraBuffer->Release();
-		m_cameraBuffer = 0;
-	}
+	SAFE_RELEASE(m_cameraBuffer);
 
 	// Release the light constant buffer.
-	if (m_lightBuffer)
-	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
-	}
+	SAFE_RELEASE(m_lightBuffer);
 
 	// Release the sampler state.
-	if (m_sampleState)
-	{
-		m_sampleState->Release();
-		m_sampleState = 0;
-	}
+	SAFE_RELEASE(m_sampleState);
 
 	// Release the matrix constant buffer.
-	if (m_matrixBuffer)
-	{
-		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
-	}
+	SAFE_RELEASE(m_matrixBuffer);
 
 	// Release the layout.
-	if (m_layout)
-	{
-		m_layout->Release();
-		m_layout = 0;
-	}
+	SAFE_RELEASE(m_layout);
 
 	// Release the pixel shader.
-	if (m_pixelShader)
-	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
-	}
+	SAFE_RELEASE(m_pixelShader);
 
 	// Release the vertex shader.
-	if (m_vertexShader)
-	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
-	}
-
+	SAFE_RELEASE(m_vertexShader);
 	return;
 }
 

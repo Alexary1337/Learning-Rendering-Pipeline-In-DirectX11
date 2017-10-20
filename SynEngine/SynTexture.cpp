@@ -2,7 +2,7 @@
 
 SynTexture::SynTexture()
 {
-	m_texture = 0;
+	SAFE_INIT(m_texture);
 }
 
 SynTexture::SynTexture(const SynTexture& other)
@@ -32,11 +32,7 @@ bool SynTexture::Initialize(ID3D11Device* device, WCHAR* filename)
 void SynTexture::Shutdown()
 {
 	// Release the texture resource.
-	if (m_texture)
-	{
-		m_texture->Release();
-		m_texture = 0;
-	}
+	SAFE_RELEASE(m_texture);
 
 	return;
 }

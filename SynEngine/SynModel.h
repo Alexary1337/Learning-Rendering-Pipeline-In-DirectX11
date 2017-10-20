@@ -1,10 +1,9 @@
 #ifndef _MODEL_H_
 #define _MODEL_H_
 
+#include "common.h"
 #include <d3d11.h>
 #include <d3dx10math.h>
-#include <fstream>
-using namespace std;
 #include "syntexture.h"
 
 class SynModel
@@ -29,7 +28,7 @@ public:
 	SynModel();
 	SynModel(const SynModel&);
 	~SynModel();
-	bool Initialize(ID3D11Device*, WCHAR*, char*);
+	bool Initialize(ID3D11Device*, WCHAR*, char*, int);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
@@ -45,9 +44,8 @@ private:
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
 	
-	bool LoadModelAssimp(char*);
+	bool LoadModelAssimp(char*, int);
 
-	bool LoadModel(char*);
 	void ReleaseModel();
 
 private:

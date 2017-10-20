@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "syninput.h"
 #include "syngraphics.h"
+#include "common.h"
 
 class SynSystem
 {

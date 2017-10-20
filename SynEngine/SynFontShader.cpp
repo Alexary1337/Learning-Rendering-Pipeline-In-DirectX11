@@ -2,12 +2,12 @@
 
 SynFontShader::SynFontShader()
 {
-	m_vertexShader = 0;
-	m_pixelShader = 0;
-	m_layout = 0;
-	m_matrixBuffer = 0;
-	m_sampleState = 0;
-	m_pixelBuffer = 0;
+	SAFE_INIT(m_vertexShader);
+	SAFE_INIT(m_pixelShader);
+	SAFE_INIT(m_layout);
+	SAFE_INIT(m_matrixBuffer);
+	SAFE_INIT(m_sampleState);
+	SAFE_INIT(m_pixelBuffer);
 }
 
 SynFontShader::SynFontShader(const SynFontShader& other)
@@ -26,10 +26,7 @@ bool SynFontShader::Initialize(ID3D11Device* device, HWND hwnd)
 
 	// Initialize the vertex and pixel shaders.
 	result = InitializeShader(device, hwnd, L"../SynEngine/font.vs", L"../SynEngine/font.ps");
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -49,10 +46,7 @@ bool SynFontShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D
 
 	// Set the shader parameters that it will use for rendering.
 	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, pixelColor);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Now render the prepared buffers with the shader.
 	RenderShader(deviceContext, indexCount);
@@ -159,11 +153,8 @@ bool SynFontShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 	}
 
 	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
-
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
+	SAFE_RELEASE(vertexShaderBuffer);
+	SAFE_RELEASE(pixelShaderBuffer);
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -223,46 +214,22 @@ bool SynFontShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 void SynFontShader::ShutdownShader()
 {
 	// Release the pixel constant buffer.
-	if (m_pixelBuffer)
-	{
-		m_pixelBuffer->Release();
-		m_pixelBuffer = 0;
-	}
+	SAFE_RELEASE(m_pixelBuffer);
 
 	// Release the sampler state.
-	if (m_sampleState)
-	{
-		m_sampleState->Release();
-		m_sampleState = 0;
-	}
+	SAFE_RELEASE(m_sampleState);
 
 	// Release the matrix constant buffer.
-	if (m_matrixBuffer)
-	{
-		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
-	}
+	SAFE_RELEASE(m_matrixBuffer);
 
 	// Release the layout.
-	if (m_layout)
-	{
-		m_layout->Release();
-		m_layout = 0;
-	}
+	SAFE_RELEASE(m_layout);
 
 	// Release the pixel shader.
-	if (m_pixelShader)
-	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
-	}
+	SAFE_RELEASE(m_pixelShader);
 
 	// Release the vertex shader.
-	if (m_vertexShader)
-	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
-	}
+	SAFE_RELEASE(m_vertexShader);
 
 	return;
 }

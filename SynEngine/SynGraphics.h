@@ -37,6 +37,9 @@ private:
 	SynColorShader* m_ColorShader;
 	SynLight* m_Light;
 	SynText* m_Text;
+
+	int* m_meshCount;
+	int* m_totalIndexCount;
 };
 
 #endif

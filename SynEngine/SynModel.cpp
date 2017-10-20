@@ -6,11 +6,11 @@
 
 SynModel::SynModel()
 {
-	m_vertexBuffer = 0;
-	m_indexBuffer = 0;
-	m_Texture = 0;
-	m_model = 0;
-	m_indices = 0;
+	SAFE_INIT(m_vertexBuffer);
+	SAFE_INIT(m_indexBuffer);
+	SAFE_INIT(m_Texture);
+	SAFE_INIT(m_model);
+	SAFE_INIT(m_indices);
 }
 
 SynModel::SynModel(const SynModel& other)
@@ -23,30 +23,21 @@ SynModel::~SynModel()
 
 }
 
-bool SynModel::Initialize(ID3D11Device* device, WCHAR* textureFilename, char* modelFilename)
+bool SynModel::Initialize(ID3D11Device* device, WCHAR* textureFilename, char* modelFilename, int meshIndex)
 {
 	bool result;
 
 	// Load in the model data,
-	result = LoadModelAssimp(modelFilename);
-	if (!result)
-	{
-		return false;
-	}
+	result = LoadModelAssimp(modelFilename, meshIndex);
+	SAFE_CHECKEXIST(result);
 
 	// Initialize the vertex and index buffer that hold the geometry for the triangle.
 	result = InitializeBuffers(device);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Load the texture for this model.
 	result = LoadTexture(device, textureFilename);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -146,31 +137,19 @@ bool SynModel::InitializeBuffers(ID3D11Device* device)
 	}
 
 	// Release the arrays now that the vertex and index buffers have been created and loaded.
-	delete[] vertices;
-	vertices = 0;
-
-	delete[] m_indices;
-	m_indices = 0;
+	SAFE_DELETE_ARRAY(vertices);
+	SAFE_DELETE_ARRAY(m_indices);
 	
-
 	return true;
 }
 
 void SynModel::ShutdownBuffers()
 {
 	// Release the index buffer.
-	if (m_indexBuffer)
-	{
-		m_indexBuffer->Release();
-		m_indexBuffer = 0;
-	}
+	SAFE_RELEASE(m_indexBuffer);
 
 	// Release the vertex buffer.
-	if (m_vertexBuffer)
-	{
-		m_vertexBuffer->Release();
-		m_vertexBuffer = 0;
-	}
+	SAFE_RELEASE(m_vertexBuffer);
 
 	return;
 }
@@ -202,17 +181,11 @@ bool SynModel::LoadTexture(ID3D11Device* device, WCHAR* filename)
 
 	// Create the texture object.
 	m_Texture = new SynTexture;
-	if (!m_Texture)
-	{
-		return false;
-	}
-
+	SAFE_CHECKEXIST(m_Texture);
+	
 	// Initialize the texture object.
 	result = m_Texture->Initialize(device, filename);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -223,26 +196,21 @@ void SynModel::ReleaseTexture()
 	if (m_Texture)
 	{
 		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+		SAFE_DELETE(m_Texture);
 	}
-
 	return;
 }
 
-bool SynModel::LoadModelAssimp(char* filename)
+bool SynModel::LoadModelAssimp(char* filename, int meshIndex)
 {
 	const aiScene* importedModel = aiImportFile(filename, aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
-	if (!importedModel)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(importedModel);
 
-	m_vertexCount = importedModel->mMeshes[0]->mNumVertices;
+	m_vertexCount = importedModel->mMeshes[meshIndex]->mNumVertices;
 
 	std::vector<unsigned long> indicesVector;
-	for (int i = 0; i < importedModel->mMeshes[0]->mNumFaces; i++) {
-		const aiFace& Face = importedModel->mMeshes[0]->mFaces[i];
+	for (int i = 0; i < importedModel->mMeshes[meshIndex]->mNumFaces; i++) {
+		const aiFace& Face = importedModel->mMeshes[meshIndex]->mFaces[i];
 		if (Face.mNumIndices == 3) {
 			indicesVector.push_back(Face.mIndices[0]);
 			indicesVector.push_back(Face.mIndices[1]);
@@ -253,10 +221,7 @@ bool SynModel::LoadModelAssimp(char* filename)
 
 	// Create the index array.
 	m_indices = new unsigned long[indicesVector.size()];
-	if (!m_indices)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_indices);
 
 	for (int i = 0; i < indicesVector.size(); i++)
 	{
@@ -264,42 +229,30 @@ bool SynModel::LoadModelAssimp(char* filename)
 	}
 
 	m_model = new ModelType[m_vertexCount];
-	if (!m_model)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_model);
 
 	for (int i = 0; i<m_vertexCount; i++)
 	{
-		m_model[i].x = importedModel->mMeshes[0]->mVertices[i].x;
-		m_model[i].y = importedModel->mMeshes[0]->mVertices[i].y;
-		m_model[i].z = importedModel->mMeshes[0]->mVertices[i].z;
+		m_model[i].x = importedModel->mMeshes[meshIndex]->mVertices[i].x;
+		m_model[i].y = importedModel->mMeshes[meshIndex]->mVertices[i].y;
+		m_model[i].z = importedModel->mMeshes[meshIndex]->mVertices[i].z;
 
-		m_model[i].tu = 1;
-		m_model[i].tv = 1;
+		//TODO ->   importedModel->mMeshes[meshIndex]->mTextureCoords[i]->x
+		m_model[i].tu = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].x;
+		m_model[i].tv = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].y;
 
-		m_model[i].nx = importedModel->mMeshes[0]->mNormals[i].x;
-		m_model[i].ny = importedModel->mMeshes[0]->mNormals[i].y;
-		m_model[i].nz = importedModel->mMeshes[0]->mNormals[i].z;
+		m_model[i].nx = importedModel->mMeshes[meshIndex]->mNormals[i].x;
+		m_model[i].ny = importedModel->mMeshes[meshIndex]->mNormals[i].y;
+		m_model[i].nz = importedModel->mMeshes[meshIndex]->mNormals[i].z;
 	}
 
 	aiReleaseImport(importedModel);
-
-	return true;
-}
-
-bool SynModel::LoadModel(char* filename)
-{
+	
 	return true;
 }
 
 void SynModel::ReleaseModel()
 {
-	if (m_model)
-	{
-		delete[] m_model;
-		m_model = 0;
-	}
-
+	SAFE_DELETE_ARRAY(m_model);
 	return;
 }
