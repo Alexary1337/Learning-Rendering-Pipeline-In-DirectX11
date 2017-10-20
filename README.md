@@ -8,7 +8,8 @@ This project is based on [Rastertek's tutorials](http://www.rastertek.com).
 ### Current progress showcase:
 ![Promo](ReadmeData/skull.png)
 ![Promo](ReadmeData/skullWF.png)
-
+![Promo](ReadmeData/pr1.png)
+![Promo](ReadmeData/pr2.png)
 
 ## HM1
 ### 1.
