@@ -1,5 +1,5 @@
 #include "synsystem.h"
-
+#include "resource.h"
 SynSystem::SynSystem()
 {
 	SAFE_INIT(m_Input);
@@ -190,7 +190,7 @@ void SynSystem::InitializeWindows(int& screenWidth, int& screenHeight)
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = m_hinstance;
-	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+	wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_MYICON));
 	wc.hIconSm = wc.hIcon;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
@@ -244,7 +244,7 @@ void SynSystem::InitializeWindows(int& screenWidth, int& screenHeight)
 	SetFocus(m_hwnd);
 
 	// Hide the mouse cursor.
-	ShowCursor(false);
+	ShowCursor(false);	
 
 	return;
 }
