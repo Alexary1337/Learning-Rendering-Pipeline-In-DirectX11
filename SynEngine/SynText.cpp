@@ -2,11 +2,10 @@
 
 SynText::SynText()
 {
-	m_Font = 0;
-	m_FontShader = 0;
-
-	m_sentence1 = 0;
-	m_sentence2 = 0;
+	SAFE_INIT(m_Font);
+	SAFE_INIT(m_FontShader);
+	SAFE_INIT(m_sentence1);
+	SAFE_INIT(m_sentence2);
 }
 
 SynText::SynText(const SynText& other)
@@ -33,10 +32,7 @@ bool SynText::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
 	// Create the font object.
 	m_Font = new SynFont;
-	if (!m_Font)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Font);
 
 	// Initialize the font object.
 	result = m_Font->Initialize(device, "../SynEngine/data/fontdata.txt", L"../SynEngine/data/font.dds");
@@ -48,10 +44,7 @@ bool SynText::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
 	// Create the font shader object.
 	m_FontShader = new SynFontShader;
-	if (!m_FontShader)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_FontShader);
 
 	// Initialize the font shader object.
 	result = m_FontShader->Initialize(device, hwnd);
@@ -63,31 +56,19 @@ bool SynText::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
 	// Initialize the first sentence.
 	result = InitializeSentence(&m_sentence1, 16, device);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Now update the sentence vertex buffer with the new string information.
 	result = UpdateSentence(m_sentence1, "FPS: 60", 100, 100, 0.0f, 1.0f, 0.0f, deviceContext);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Initialize the first sentence.
 	result = InitializeSentence(&m_sentence2, 16, device);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Now update the sentence vertex buffer with the new string information.
 	result = UpdateSentence(m_sentence2, "F1 -  wireframe", 100, 150, 0.0f, 1.0f, 0.0f, deviceContext);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -104,16 +85,14 @@ void SynText::Shutdown()
 	if (m_FontShader)
 	{
 		m_FontShader->Shutdown();
-		delete m_FontShader;
-		m_FontShader = 0;
+		SAFE_DELETE(m_FontShader);
 	}
 
 	// Release the font object.
 	if (m_Font)
 	{
 		m_Font->Shutdown();
-		delete m_Font;
-		m_Font = 0;
+		SAFE_DELETE(m_Font);
 	}
 
 	return;
@@ -125,17 +104,11 @@ bool SynText::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix,
 
 	// Draw the first sentence.
 	result = RenderSentence(deviceContext, m_sentence1, worldMatrix, orthoMatrix);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Draw the second sentence.
 	result = RenderSentence(deviceContext, m_sentence2, worldMatrix, orthoMatrix);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -151,10 +124,7 @@ bool SynText::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11D
 
 	// Create a new sentence object.
 	*sentence = new SentenceType;
-	if (!*sentence)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(*sentence);
 
 	// Initialize the sentence buffers to null.
 	(*sentence)->vertexBuffer = 0;
@@ -171,17 +141,11 @@ bool SynText::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11D
 
 	// Create the vertex array.
 	vertices = new VertexType[(*sentence)->vertexCount];
-	if (!vertices)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(vertices);
 
 	// Create the index array.
 	indices = new unsigned long[(*sentence)->indexCount];
-	if (!indices)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(indices);
 
 	// Initialize vertex array to zeros at first.
 	memset(vertices, 0, (sizeof(VertexType) * (*sentence)->vertexCount));
@@ -233,12 +197,10 @@ bool SynText::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11D
 	}
 
 	// Release the vertex array as it is no longer needed.
-	delete[] vertices;
-	vertices = 0;
+	SAFE_DELETE_ARRAY(vertices);
 
 	// Release the index array as it is no longer needed.
-	delete[] indices;
-	indices = 0;
+	SAFE_DELETE_ARRAY(indices);
 
 	return true;
 }
@@ -269,10 +231,7 @@ bool SynText::UpdateSentence(SentenceType* sentence, char* text, int positionX, 
 
 	// Create the vertex array.
 	vertices = new VertexType[sentence->vertexCount];
-	if (!vertices)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(vertices);
 
 	// Initialize vertex array to zeros at first.
 	memset(vertices, 0, (sizeof(VertexType) * sentence->vertexCount));
@@ -301,8 +260,7 @@ bool SynText::UpdateSentence(SentenceType* sentence, char* text, int positionX, 
 	deviceContext->Unmap(sentence->vertexBuffer, 0);
 
 	// Release the vertex array as it is no longer needed.
-	delete[] vertices;
-	vertices = 0;
+	SAFE_DELETE_ARRAY(vertices);
 
 	return true;
 }
@@ -326,8 +284,7 @@ void SynText::ReleaseSentence(SentenceType** sentence)
 		}
 
 		// Release the sentence.
-		delete *sentence;
-		*sentence = 0;
+		SAFE_DELETE(*sentence);
 	}
 
 	return;
@@ -359,10 +316,7 @@ bool SynText::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* s
 	// Render the text using the font shader.
 	result = m_FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix, m_Font->GetTexture(),
 		pixelColor);
-	if (!result)
-	{
-		false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }

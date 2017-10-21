@@ -1,6 +1,7 @@
 #ifndef _GRAPHICS_H_
 #define _GRAPHICS_H_
 
+#include "common.h"
 #include "synd3d.h"
 #include "syncamera.h"
 #include "synmodel.h"

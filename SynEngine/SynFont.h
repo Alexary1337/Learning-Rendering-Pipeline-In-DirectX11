@@ -1,11 +1,11 @@
 #ifndef _FONT_H_
 #define _FONT_H_
 
+#include "common.h"
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include <fstream>
 using namespace std;
-
 #include "syntexture.h"
 
 class SynFont

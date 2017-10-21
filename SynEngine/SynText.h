@@ -1,6 +1,7 @@
 #ifndef _TEXT_H_
 #define _TEXT_H_
 
+#include "common.h"
 #include "synfont.h"
 #include "synfontshader.h"
 

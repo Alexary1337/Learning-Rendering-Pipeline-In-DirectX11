@@ -1,8 +1,4 @@
 #include "synmodel.h"
-#include <assimp\cimport.h>
-#include <assimp\postprocess.h>
-#include <assimp\scene.h>
-#include <vector>
 
 SynModel::SynModel()
 {
@@ -238,8 +234,8 @@ bool SynModel::LoadModelAssimp(char* filename, int meshIndex)
 		m_model[i].z = importedModel->mMeshes[meshIndex]->mVertices[i].z;
 
 		//TODO ->   importedModel->mMeshes[meshIndex]->mTextureCoords[i]->x
-		m_model[i].tu = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].x;
-		m_model[i].tv = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].y;
+		m_model[i].tu = 1;
+		m_model[i].tv = 1;
 
 		m_model[i].nx = importedModel->mMeshes[meshIndex]->mNormals[i].x;
 		m_model[i].ny = importedModel->mMeshes[meshIndex]->mNormals[i].y;

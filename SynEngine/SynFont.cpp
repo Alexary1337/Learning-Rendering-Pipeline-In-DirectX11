@@ -2,8 +2,8 @@
 
 SynFont::SynFont()
 {
-	m_Font = 0;
-	m_Texture = 0;
+	SAFE_INIT(m_Font);
+	SAFE_INIT(m_Texture);
 }
 
 SynFont::SynFont(const SynFont& other)
@@ -22,17 +22,11 @@ bool SynFont::Initialize(ID3D11Device* device, char* fontFilename, WCHAR* textur
 
 	// Load in the text file containing the font data.
 	result = LoadFontData(fontFilename);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Load the texture that has the font characters on it.
 	result = LoadTexture(device, textureFilename);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -56,10 +50,7 @@ bool SynFont::LoadFontData(char* filename)
 
 	// Create the font spacing buffer.
 	m_Font = new FontType[95];
-	if (!m_Font)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Font);
 
 	// Read in the font size and spacing between chars.
 	fin.open(filename);
@@ -98,8 +89,7 @@ void SynFont::ReleaseFontData()
 	// Release the font data array.
 	if (m_Font)
 	{
-		delete[] m_Font;
-		m_Font = 0;
+		SAFE_DELETE_ARRAY(m_Font);
 	}
 
 	return;
@@ -109,20 +99,13 @@ bool SynFont::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	bool result;
 
-
 	// Create the texture object.
 	m_Texture = new SynTexture;
-	if (!m_Texture)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Texture);
 
 	// Initialize the texture object.
 	result = m_Texture->Initialize(device, filename);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -133,8 +116,7 @@ void SynFont::ReleaseTexture()
 	if (m_Texture)
 	{
 		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+		SAFE_DELETE(m_Texture);
 	}
 
 	return;

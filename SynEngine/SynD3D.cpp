@@ -2,17 +2,17 @@
 
 SynD3D::SynD3D()
 {
-	m_swapChain = 0;
-	m_device = 0;
-	m_deviceContext = 0;
-	m_renderTargetView = 0;
-	m_depthStencilBuffer = 0;
-	m_depthStencilState = 0;
-	m_depthDisabledStencilState = 0;
-	m_depthStencilView = 0;
-	m_rasterState = 0;
-	m_alphaEnableBlendingState = 0;
-	m_alphaDisableBlendingState = 0;
+	SAFE_INIT(m_swapChain);
+	SAFE_INIT(m_device);
+	SAFE_INIT(m_deviceContext);
+	SAFE_INIT(m_renderTargetView);
+	SAFE_INIT(m_depthStencilBuffer);
+	SAFE_INIT(m_depthStencilState);
+	SAFE_INIT(m_depthDisabledStencilState);
+	SAFE_INIT(m_depthStencilView);
+	SAFE_INIT(m_rasterState);
+	SAFE_INIT(m_alphaEnableBlendingState);
+	SAFE_INIT(m_alphaDisableBlendingState);
 }
 
 SynD3D::SynD3D(const SynD3D& other)
@@ -80,10 +80,7 @@ bool SynD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
 	displayModeList = new DXGI_MODE_DESC[numModes];
-	if (!displayModeList)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(displayModeList);
 
 	// Now fill the display mode list structures.
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
@@ -124,20 +121,16 @@ bool SynD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd
 	}
 
 	// Release the display mode list.
-	delete[] displayModeList;
-	displayModeList = 0;
+	SAFE_DELETE_ARRAY(displayModeList);
 
 	// Release the adapter output.
-	adapterOutput->Release();
-	adapterOutput = 0;
+	SAFE_RELEASE(adapterOutput);
 
 	// Release the adapter.
-	adapter->Release();
-	adapter = 0;
+	SAFE_RELEASE(adapter);
 
 	// Release the factory.
-	factory->Release();
-	factory = 0;
+	SAFE_RELEASE(factory);
 
 	//----------------------------------------------------------------------------------
 
@@ -418,68 +411,57 @@ void SynD3D::Shutdown()
 
 	if (m_alphaEnableBlendingState)
 	{
-		m_alphaEnableBlendingState->Release();
-		m_alphaEnableBlendingState = 0;
+		SAFE_RELEASE(m_alphaEnableBlendingState);
 	}
 
 	if (m_alphaDisableBlendingState)
 	{
-		m_alphaDisableBlendingState->Release();
-		m_alphaDisableBlendingState = 0;
+		SAFE_RELEASE(m_alphaDisableBlendingState);
 	}
 
 	if (m_rasterState)
 	{
-		m_rasterState->Release();
-		m_rasterState = 0;
+		SAFE_RELEASE(m_rasterState);
 	}
 
 	if (m_depthDisabledStencilState)
 	{
-		m_depthDisabledStencilState->Release();
-		m_depthDisabledStencilState = 0;
+		SAFE_RELEASE(m_depthDisabledStencilState);
 	}
 
 	if (m_depthStencilView)
 	{
-		m_depthStencilView->Release();
-		m_depthStencilView = 0;
+		SAFE_RELEASE(m_depthStencilView);
 	}
 
 	if (m_depthStencilState)
 	{
-		m_depthStencilState->Release();
-		m_depthStencilState = 0;
+		SAFE_RELEASE(m_depthStencilState);;
 	}
 
 	if (m_depthStencilBuffer)
 	{
-		m_depthStencilBuffer->Release();
-		m_depthStencilBuffer = 0;
+		SAFE_RELEASE(m_depthStencilBuffer);
 	}
 
 	if (m_renderTargetView)
 	{
-		m_renderTargetView->Release();
-		m_renderTargetView = 0;
+		SAFE_RELEASE(m_renderTargetView);
 	}
 
 	if (m_deviceContext)
 	{
-		m_deviceContext->Release();
-		m_deviceContext = 0;
+		SAFE_RELEASE(m_deviceContext);
 	}
 
 	if (m_device)
 	{
-		m_device->Release();
-		m_device = 0;
+		SAFE_RELEASE(m_device);
 	}
 
 	if (m_swapChain)
 	{
-		m_swapChain->Release();
-		m_swapChain = 0;
+		SAFE_RELEASE(m_swapChain);
 	}
 
 	return;
@@ -503,7 +485,6 @@ void SynD3D::BeginScene(float red, float green, float blue, float alpha)
 
 	return;
 }
-
 
 void SynD3D::EndScene()
 {
@@ -538,13 +519,11 @@ void SynD3D::GetProjectionMatrix(D3DXMATRIX& projectionMatrix)
 	return;
 }
 
-
 void SynD3D::GetWorldMatrix(D3DXMATRIX& worldMatrix)
 {
 	worldMatrix = m_worldMatrix;
 	return;
 }
-
 
 void SynD3D::GetOrthoMatrix(D3DXMATRIX& orthoMatrix)
 {
@@ -565,7 +544,6 @@ void SynD3D::TurnZBufferOn()
 	return;
 }
 
-
 void SynD3D::TurnZBufferOff()
 {
 	m_deviceContext->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
@@ -575,7 +553,6 @@ void SynD3D::TurnZBufferOff()
 void SynD3D::TurnOnAlphaBlending()
 {
 	float blendFactor[4];
-
 
 	// Setup the blend factor.
 	blendFactor[0] = 0.0f;
@@ -592,7 +569,6 @@ void SynD3D::TurnOnAlphaBlending()
 void SynD3D::TurnOffAlphaBlending()
 {
 	float blendFactor[4];
-
 
 	// Setup the blend factor.
 	blendFactor[0] = 0.0f;

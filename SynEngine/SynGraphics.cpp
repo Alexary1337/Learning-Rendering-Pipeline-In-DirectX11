@@ -2,15 +2,14 @@
 
 SynGraphics::SynGraphics()
 {
-	m_D3D = 0;
-	m_Camera = 0;
-	m_Model = 0;
-	m_ColorShader = 0;
-	m_Light = 0;
-	m_Text = 0;
-
-	m_meshCount  =0;
-	m_totalIndexCount = 0;
+	SAFE_INIT(m_D3D);
+	SAFE_INIT(m_Camera);
+	SAFE_INIT(m_Model);
+	SAFE_INIT(m_ColorShader);
+	SAFE_INIT(m_Light);
+	SAFE_INIT(m_Text);
+	SAFE_INIT(m_meshCount);
+	SAFE_INIT(m_totalIndexCount);
 }
 
 SynGraphics::SynGraphics(const SynGraphics& other)
@@ -29,13 +28,9 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	D3DXMATRIX baseViewMatrix;
 
-
 	// Create the Direct3D object.
 	m_D3D = new SynD3D;
-	if (!m_D3D)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_D3D);
 
 	// Initialize the Direct3D object.
 	result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
@@ -47,42 +42,31 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	
 	// Create the camera object.
 	m_Camera = new SynCamera;
-	if (!m_Camera)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Camera);
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -250.0f);
+	m_Camera->SetPosition(-10.0f, 60.0f, -250.0f);
 
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
 
 	//TODO: refactor multi mesh rendering pipeline
 	m_meshCount = new int;
-	if (!m_meshCount)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_meshCount);
 
 	m_totalIndexCount = new int;
-	if (!m_totalIndexCount)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_totalIndexCount);
 
-	const aiScene* importedModel = aiImportFile("../SynEngine/data/torus.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	const aiScene* importedModel = aiImportFile("../SynEngine/data/akm.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
 	*m_meshCount = importedModel->mNumMeshes;
 	*m_totalIndexCount = 0;
 
 	// Create the model object.
 	m_Model = new SynModel[*m_meshCount];
-	if (!m_Model)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Model);
 
-	for (int i = 0; i < 1; i++)
+
+	for (int i = 0; i < *m_meshCount; i++)
 	{
 		for (int j = 0; j < importedModel->mMeshes[i]->mNumFaces; j++) {
 			if (importedModel->mMeshes[i]->mFaces[j].mNumIndices == 3) {
@@ -90,7 +74,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 			}
 		}
 
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/torus.obj", i);
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/bump.jpg", "../SynEngine/data/akm.obj", i);
 		if (!result)
 		{
 			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
@@ -109,10 +93,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Create the color shader object.
 	m_ColorShader = new SynColorShader;
-	if (!m_ColorShader)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_ColorShader);
 
 	// Initialize the color shader object.
 	result = m_ColorShader->Initialize(m_D3D->GetDevice(), hwnd);
@@ -124,10 +105,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Create the light object.
 	m_Light = new SynLight;
-	if (!m_Light)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Light);
 
 	// Initialize the light object.
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
@@ -136,13 +114,9 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(64.0f);
 
-
 	// Create the text object.
 	m_Text = new SynText;
-	if (!m_Text)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(m_Text);
 
 	// Initialize the text object.
 	result = m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
@@ -161,45 +135,39 @@ void SynGraphics::Shutdown()
 	if (m_Text)
 	{
 		m_Text->Shutdown();
-		delete m_Text;
-		m_Text = 0;
+		SAFE_DELETE(m_Text);
 	}
 	
 	// Release the light object.
 	if (m_Light)
 	{
-		delete m_Light;
-		m_Light = 0;
+		SAFE_DELETE(m_Light);
 	}
 
 	// Release the color shader object.
 	if (m_ColorShader)
 	{
 		m_ColorShader->Shutdown();
-		delete m_ColorShader;
-		m_ColorShader = 0;
+		SAFE_DELETE(m_ColorShader);
 	}
 
 	// Release the model object.
 	if (m_Model)
 	{
 		m_Model->Shutdown();
-		delete[] m_Model;
-		m_Model = 0;
+		SAFE_DELETE_ARRAY(m_Model);
 	}
 
 	// Release the camera object.
 	if (m_Camera)
 	{
-		delete m_Camera;
-		m_Camera = 0;
+		SAFE_DELETE(m_Camera);
 	}
 
 	if (m_D3D)
 	{
 		m_D3D->Shutdown();
-		delete m_D3D;
-		m_D3D = 0;
+		SAFE_DELETE(m_D3D);
 	}
 	return;
 }
@@ -209,7 +177,6 @@ bool SynGraphics::Frame(int way)
 	bool result;
 
 	static float rotation = 0.0f;
-
 
 	// Update the rotation variable each frame.
 	if (way==1)
@@ -228,10 +195,7 @@ bool SynGraphics::Frame(int way)
 
 	// Render the graphics scene.
 	result = Render(rotation);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -262,10 +226,7 @@ bool SynGraphics::Render(float rotation)
 
 	// Render the text strings.
 	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	// Turn off alpha blending after rendering the text.
 	m_D3D->TurnOffAlphaBlending();
@@ -275,22 +236,19 @@ bool SynGraphics::Render(float rotation)
 
 	//TODO: fix this scary thing
 	if (rotation!=0){
-		D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, -300, 0);
+		D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, 0, 0);
 	}
-	else D3DXMatrixRotationYawPitchRoll(&worldMatrix, 0, -300, 0);
+	else D3DXMatrixRotationYawPitchRoll(&worldMatrix, 0, 0, 0);
 
 	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	//m_Model->Render(m_D3D->GetDeviceContext());
 
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < *m_meshCount; i++)
 	{
 		m_Model[i].Render(m_D3D->GetDeviceContext());
 		result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model[i].GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(),
 				m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-			if (!result)
-			{
-				return false;
-			}
+		SAFE_CHECKEXIST(result);
 	}
 
 	//// Render the model using the color shader.
@@ -311,10 +269,7 @@ bool SynGraphics::TurnWF()
 	bool result;
 
 	result = m_D3D->Wireframe();
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }

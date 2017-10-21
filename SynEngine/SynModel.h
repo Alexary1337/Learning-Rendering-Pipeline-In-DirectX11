@@ -5,6 +5,10 @@
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include "syntexture.h"
+#include <assimp\cimport.h>
+#include <assimp\postprocess.h>
+#include <assimp\scene.h>
+#include <vector>
 
 class SynModel
 {
