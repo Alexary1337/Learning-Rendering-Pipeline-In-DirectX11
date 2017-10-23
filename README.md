@@ -10,6 +10,7 @@ This project is based on [Rastertek's tutorials](http://www.rastertek.com).
 ![Promo](ReadmeData/skullWF.png)
 ![Promo](ReadmeData/pr1.png)
 ![Promo](ReadmeData/pr2.png)
+![Promo](ReadmeData/pr3.png)
 
 ## HM1
 ### 1.
