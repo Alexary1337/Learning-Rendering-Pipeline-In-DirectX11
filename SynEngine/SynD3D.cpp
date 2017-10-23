@@ -13,6 +13,7 @@ SynD3D::SynD3D()
 	SAFE_INIT(m_rasterState);
 	SAFE_INIT(m_alphaEnableBlendingState);
 	SAFE_INIT(m_alphaDisableBlendingState);
+	SAFE_INIT(m_rasterStateNoCulling);
 }
 
 SynD3D::SynD3D(const SynD3D& other)
@@ -317,6 +318,25 @@ bool SynD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd
 	// Now set the rasterizer state.
 	m_deviceContext->RSSetState(m_rasterState);
 
+	// Setup a raster description which turns off back face culling.
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the no culling rasterizer state.
+	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateNoCulling);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	// Setup the viewport for rendering.
 	viewport.Width = (float)screenWidth;
 	viewport.Height = (float)screenHeight;
@@ -409,60 +429,18 @@ void SynD3D::Shutdown()
 		m_swapChain->SetFullscreenState(false, NULL);
 	}
 
-	if (m_alphaEnableBlendingState)
-	{
-		SAFE_RELEASE(m_alphaEnableBlendingState);
-	}
-
-	if (m_alphaDisableBlendingState)
-	{
-		SAFE_RELEASE(m_alphaDisableBlendingState);
-	}
-
-	if (m_rasterState)
-	{
-		SAFE_RELEASE(m_rasterState);
-	}
-
-	if (m_depthDisabledStencilState)
-	{
-		SAFE_RELEASE(m_depthDisabledStencilState);
-	}
-
-	if (m_depthStencilView)
-	{
-		SAFE_RELEASE(m_depthStencilView);
-	}
-
-	if (m_depthStencilState)
-	{
-		SAFE_RELEASE(m_depthStencilState);;
-	}
-
-	if (m_depthStencilBuffer)
-	{
-		SAFE_RELEASE(m_depthStencilBuffer);
-	}
-
-	if (m_renderTargetView)
-	{
-		SAFE_RELEASE(m_renderTargetView);
-	}
-
-	if (m_deviceContext)
-	{
-		SAFE_RELEASE(m_deviceContext);
-	}
-
-	if (m_device)
-	{
-		SAFE_RELEASE(m_device);
-	}
-
-	if (m_swapChain)
-	{
-		SAFE_RELEASE(m_swapChain);
-	}
+	SAFE_RELEASE(m_alphaEnableBlendingState);	
+	SAFE_RELEASE(m_alphaDisableBlendingState);
+	SAFE_RELEASE(m_rasterStateNoCulling);
+	SAFE_RELEASE(m_rasterState);
+	SAFE_RELEASE(m_depthDisabledStencilState);
+	SAFE_RELEASE(m_depthStencilView);
+	SAFE_RELEASE(m_depthStencilState);;
+	SAFE_RELEASE(m_depthStencilBuffer);
+	SAFE_RELEASE(m_renderTargetView);	
+	SAFE_RELEASE(m_deviceContext);
+	SAFE_RELEASE(m_device);	
+	SAFE_RELEASE(m_swapChain);
 
 	return;
 }
@@ -578,6 +556,22 @@ void SynD3D::TurnOffAlphaBlending()
 
 	// Turn off the alpha blending.
 	m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
+
+	return;
+}
+
+void SynD3D::TurnOnCulling()
+{
+	// Set the culling rasterizer state.
+	m_deviceContext->RSSetState(m_rasterState);
+
+	return;
+}
+
+void SynD3D::TurnOffCulling()
+{
+	// Set the no back face culling rasterizer state.
+	m_deviceContext->RSSetState(m_rasterStateNoCulling);
 
 	return;
 }

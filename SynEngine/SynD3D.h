@@ -43,6 +43,9 @@ public:
 	void TurnOnAlphaBlending();
 	void TurnOffAlphaBlending();
 
+	void TurnOnCulling();
+	void TurnOffCulling();
+
 	bool Wireframe();
 
 private:
@@ -64,6 +67,8 @@ private:
 
 	ID3D11BlendState* m_alphaEnableBlendingState;
 	ID3D11BlendState* m_alphaDisableBlendingState;
+
+	ID3D11RasterizerState* m_rasterStateNoCulling;
 };
 
 

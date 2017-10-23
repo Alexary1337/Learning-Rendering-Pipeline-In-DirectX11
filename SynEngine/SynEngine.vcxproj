@@ -75,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SynSkyDomeShader.cpp" />
     <ClCompile Include="SynBitmap.cpp" />
     <ClCompile Include="SynCamera.cpp" />
     <ClCompile Include="SynColorShader.cpp" />
@@ -86,6 +87,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SynLight.cpp" />
     <ClCompile Include="SynModel.cpp" />
+    <ClCompile Include="SynSkyDome.cpp" />
     <ClCompile Include="SynSystem.cpp" />
     <ClCompile Include="SynText.cpp" />
     <ClCompile Include="SynTexture.cpp" />
@@ -93,6 +95,7 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SynSkyDomeShader.h" />
     <ClInclude Include="SynBitmap.h" />
     <ClInclude Include="SynCamera.h" />
     <ClInclude Include="SynColorShader.h" />
@@ -103,12 +106,29 @@
     <ClInclude Include="SynInput.h" />
     <ClInclude Include="SynLight.h" />
     <ClInclude Include="SynModel.h" />
+    <ClInclude Include="SynSkyDome.h" />
     <ClInclude Include="SynSystem.h" />
     <ClInclude Include="SynText.h" />
     <ClInclude Include="SynTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Color.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="ModelPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="ModelVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="SkyDomePixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="SkyDomeVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>

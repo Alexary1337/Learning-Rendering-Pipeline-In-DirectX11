@@ -26,7 +26,7 @@ bool SynColorShader::Initialize(ID3D11Device* device, HWND hwnd)
 	bool result;
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"../SynEngine/texture.vs", L"../SynEngine/texture.ps");
+	result = InitializeShader(device, hwnd, L"../SynEngine/ModelVertexShader.hlsl", L"../SynEngine/ModelPixelShader.hlsl");
 	SAFE_CHECKEXIST(result);
 
 	return true;
@@ -75,7 +75,7 @@ bool SynColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	pixelShaderBuffer = 0;
 	
 	// Compile the vertex shader code.
-	result = D3DX11CompileFromFileW(vsFilename, NULL, NULL, "TextureVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
+	result = D3DX11CompileFromFileW(vsFilename, NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
 		&vertexShaderBuffer, &errorMessage, NULL);
 	if (FAILED(result))
 	{
@@ -94,7 +94,7 @@ bool SynColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	}
 
 	// Compile the pixel shader code.
-	result = D3DX11CompileFromFileW(psFilename, NULL, NULL, "TexturePixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
+	result = D3DX11CompileFromFileW(psFilename, NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
 		&pixelShaderBuffer, &errorMessage, NULL);
 	if (FAILED(result))
 	{

@@ -8,9 +8,11 @@
 #include "syncolorshader.h"
 #include "synlight.h"
 #include "syntext.h"
+#include "synskydome.h"
+#include "synskydomeshader.h"
 #include "synbitmap.h"
 
-const bool FULL_SCREEN = false;
+const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 7000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -38,7 +40,8 @@ private:
 	SynColorShader* m_ColorShader;
 	SynLight* m_Light;
 	SynText* m_Text;
-
+	SynSkyDome* m_SkyDome;
+	SynSkyDomeShader* m_SkyDomeShader;
 	int* m_meshCount;
 	int* m_totalIndexCount;
 };

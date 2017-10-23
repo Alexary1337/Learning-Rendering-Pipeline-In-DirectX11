@@ -8,6 +8,8 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_ColorShader);
 	SAFE_INIT(m_Light);
 	SAFE_INIT(m_Text);
+	SAFE_INIT(m_SkyDome);
+	SAFE_INIT(m_SkyDomeShader);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
 }
@@ -45,7 +47,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	SAFE_CHECKEXIST(m_Camera);
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(-10.0f, 60.0f, -250.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f); //m_Camera->SetPosition(-10.0f, 60.0f, -250.0f);
 
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
@@ -57,7 +59,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_totalIndexCount = new int;
 	SAFE_CHECKEXIST(m_totalIndexCount);
 
-	const aiScene* importedModel = aiImportFile("../SynEngine/data/akm.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	const aiScene* importedModel = aiImportFile("../SynEngine/data/skydomev2.3ds", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
 	*m_meshCount = importedModel->mNumMeshes;
 	*m_totalIndexCount = 0;
 
@@ -74,7 +76,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 			}
 		}
 
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/bump.jpg", "../SynEngine/data/akm.obj", i);
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/bump.jpg", "../SynEngine/data/skydomev2.3ds", i);
 		if (!result)
 		{
 			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
@@ -126,11 +128,49 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Create the sky dome object.
+	m_SkyDome = new SynSkyDome;
+	SAFE_CHECKEXIST(m_SkyDome);
+	
+	// Initialize the sky dome object.
+	result = m_SkyDome->Initialize(m_D3D->GetDevice());
+	if (!result)
+	{
+		MessageBoxW(hwnd, L"Could not initialize the sky dome object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the sky dome shader object.
+	m_SkyDomeShader = new SynSkyDomeShader;
+	SAFE_CHECKEXIST(m_SkyDomeShader);
+
+	// Initialize the sky dome shader object.
+	result = m_SkyDomeShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBoxW(hwnd, L"Could not initialize the sky dome shader object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 void SynGraphics::Shutdown()
 {
+	// Release the sky dome shader object.
+	if (m_SkyDomeShader)
+	{
+		m_SkyDomeShader->Shutdown();
+		SAFE_DELETE(m_SkyDomeShader);
+	}
+
+	// Release the sky dome object.
+	if (m_SkyDome)
+	{
+		m_SkyDome->Shutdown();
+		SAFE_DELETE(m_SkyDome);
+	}
+
 	// Release the text object.
 	if (m_Text)
 	{
@@ -202,6 +242,7 @@ bool SynGraphics::Frame(int way)
 
 bool SynGraphics::Render(float rotation)
 {
+	D3DXVECTOR3 cameraPosition;
 	D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 	bool result;
 
@@ -217,6 +258,36 @@ bool SynGraphics::Render(float rotation)
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 	m_D3D->GetOrthoMatrix(orthoMatrix);
+
+
+
+	// Get the position of the camera.
+	cameraPosition = m_Camera->GetPosition();
+
+	// Translate the sky dome to be centered around the camera position.
+	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+
+	// Turn off back face culling.
+	m_D3D->TurnOffCulling();
+
+	// Turn off the Z buffer.
+	m_D3D->TurnZBufferOff();
+
+	// Render the sky dome using the sky dome shader.
+	m_SkyDome->Render(m_D3D->GetDeviceContext());
+	m_SkyDomeShader->Render(m_D3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
+
+	// Turn back face culling back on.
+	m_D3D->TurnOnCulling();
+
+	// Turn the Z buffer back on.
+	m_D3D->TurnZBufferOn();
+
+	// Reset the world matrix.
+	m_D3D->GetWorldMatrix(worldMatrix);
+
+
 
 	// Turn off the Z buffer to begin all 2D rendering.
 	m_D3D->TurnZBufferOff();
