@@ -5,7 +5,9 @@ type Register = [Entry]
 operatorRegister :: Register
 operatorRegister = [
                 ("+", (+)),
-                ("*", (*))
+                ("-", (-)),
+                ("*", (*)),
+                ("/", (/))
             ]
             
 main = print $ calculate "2 + 2 * 2"
