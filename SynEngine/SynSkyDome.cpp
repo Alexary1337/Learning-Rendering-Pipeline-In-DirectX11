@@ -106,11 +106,10 @@ bool SynSkyDome::LoadSkyDomeModel(char* filename)
 		m_model[i].x = importedModel->mMeshes[0]->mVertices[i].x;
 		m_model[i].y = importedModel->mMeshes[0]->mVertices[i].y;
 		m_model[i].z = importedModel->mMeshes[0]->mVertices[i].z;
-
-		//TODO ->   importedModel->mMeshes[meshIndex]->mTextureCoords[i]->x
-		m_model[i].tu = 0.5;
-		m_model[i].tv = 0.5;
-
+		if (importedModel->mMeshes[0]->HasTextureCoords(0)){
+			m_model[i].tu = importedModel->mMeshes[0]->mTextureCoords[0][i].x;
+			m_model[i].tv = importedModel->mMeshes[0]->mTextureCoords[0][i].y;
+		}
 		m_model[i].nx = importedModel->mMeshes[0]->mNormals[i].x;
 		m_model[i].ny = importedModel->mMeshes[0]->mNormals[i].y;
 		m_model[i].nz = importedModel->mMeshes[0]->mNormals[i].z;

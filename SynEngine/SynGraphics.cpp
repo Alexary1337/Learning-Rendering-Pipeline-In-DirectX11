@@ -59,7 +59,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_totalIndexCount = new int;
 	SAFE_CHECKEXIST(m_totalIndexCount);
 
-	const aiScene* importedModel = aiImportFile("../SynEngine/data/skydomev2.3ds", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	const aiScene* importedModel = aiImportFile("../SynEngine/data/torus.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
 	*m_meshCount = importedModel->mNumMeshes;
 	*m_totalIndexCount = 0;
 
@@ -76,7 +76,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 			}
 		}
 
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/bump.jpg", "../SynEngine/data/skydomev2.3ds", i);
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/grey.dds", "../SynEngine/data/torus.obj", i);
 		if (!result)
 		{
 			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);

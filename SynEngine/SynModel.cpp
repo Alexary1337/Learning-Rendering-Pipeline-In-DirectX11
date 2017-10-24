@@ -216,10 +216,10 @@ bool SynModel::LoadModelAssimp(char* filename, int meshIndex)
 	m_indexCount = indicesVector.size();
 
 	// Create the index array.
-	m_indices = new unsigned long[indicesVector.size()];
+	m_indices = new unsigned long[m_indexCount];
 	SAFE_CHECKEXIST(m_indices);
 
-	for (int i = 0; i < indicesVector.size(); i++)
+	for (int i = 0; i < m_indexCount; i++)
 	{
 		m_indices[i] = indicesVector[i];
 	}
@@ -232,11 +232,10 @@ bool SynModel::LoadModelAssimp(char* filename, int meshIndex)
 		m_model[i].x = importedModel->mMeshes[meshIndex]->mVertices[i].x;
 		m_model[i].y = importedModel->mMeshes[meshIndex]->mVertices[i].y;
 		m_model[i].z = importedModel->mMeshes[meshIndex]->mVertices[i].z;
-
-		//TODO ->   importedModel->mMeshes[meshIndex]->mTextureCoords[i]->x
-		m_model[i].tu = 1;
-		m_model[i].tv = 1;
-
+		if (importedModel->mMeshes[meshIndex]->HasTextureCoords(0)){
+			m_model[i].tu = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].x;
+			m_model[i].tv = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].y;							
+		}
 		m_model[i].nx = importedModel->mMeshes[meshIndex]->mNormals[i].x;
 		m_model[i].ny = importedModel->mMeshes[meshIndex]->mNormals[i].y;
 		m_model[i].nz = importedModel->mMeshes[meshIndex]->mNormals[i].z;
