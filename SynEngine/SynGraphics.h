@@ -10,6 +10,9 @@
 #include "syntext.h"
 #include "synskydome.h"
 #include "synskydomeshader.h"
+#include "synposition.h"
+#include "syntimer.h"
+#include "syninput.h"
 #include "synbitmap.h"
 
 const bool FULL_SCREEN = false;
@@ -26,12 +29,12 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int);
+	bool Frame(bool[]);
 	bool TurnWF();
-	void ChangeCameraPosition(bool);
 
 private:
-	bool Render(float);
+	bool HandleInput(float frameTime, bool[]);
+	bool Render();
 
 private:
 	SynD3D* m_D3D;
@@ -42,6 +45,9 @@ private:
 	SynText* m_Text;
 	SynSkyDome* m_SkyDome;
 	SynSkyDomeShader* m_SkyDomeShader;
+	SynPosition* m_Position;
+	SynTimer* m_Timer;
+	SynInput* m_Input;
 	int* m_meshCount;
 	int* m_totalIndexCount;
 };

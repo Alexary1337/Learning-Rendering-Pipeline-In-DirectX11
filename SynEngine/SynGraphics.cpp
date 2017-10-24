@@ -10,6 +10,9 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_Text);
 	SAFE_INIT(m_SkyDome);
 	SAFE_INIT(m_SkyDomeShader);
+	SAFE_INIT(m_Position);
+	SAFE_INIT(m_Timer);
+	SAFE_INIT(m_Input);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
 }
@@ -152,11 +155,50 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+
+	// Create the position object.
+	m_Position = new SynPosition;
+	SAFE_CHECKEXIST(m_Position);
+
+	// Set the initial position of the viewer to the same as the initial camera position.
+	m_Position->SetPosition(0.0f, 0.0f, 0.0f);
+
+	// Create the timer object.
+	m_Timer = new SynTimer;
+	SAFE_CHECKEXIST(m_Timer);
+
+	// Initialize the timer object.
+	result = m_Timer->Initialize();
+	if (!result)
+	{
+		MessageBoxW(hwnd, L"Could not initialize the timer object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_Input = new SynInput;
+	SAFE_CHECKEXIST(m_Input);
+	m_Input->Initialize();
+
 	return true;
 }
 
 void SynGraphics::Shutdown()
 {
+	// Release the input object.
+	SAFE_DELETE(m_Input);
+
+	// Release the position object.
+	if (m_Timer)
+	{
+		SAFE_DELETE(m_Timer);
+	}
+
+	// Release the position object.
+	if (m_Position)
+	{
+		SAFE_DELETE(m_Position);
+	}
+
 	// Release the sky dome shader object.
 	if (m_SkyDomeShader)
 	{
@@ -212,40 +254,59 @@ void SynGraphics::Shutdown()
 	return;
 }
 
-bool SynGraphics::Frame(int way)
+bool SynGraphics::Frame(bool* pressedArray)
 {
 	bool result;
 
-	static float rotation = 0.0f;
+	// Update the system stats.
+	m_Timer->Frame();
 
-	// Update the rotation variable each frame.
-	if (way==1)
-	{
-		rotation += (float)D3DX_PI * 0.003f;
-	}
-	if (way == 2)
-	{
-		rotation -= (float)D3DX_PI * 0.003f;
-	}
+	// Do the frame input processing.
+	result = HandleInput(m_Timer->GetTime(), pressedArray);
+ 	SAFE_CHECKEXIST(result);
 
-	if (rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
 
 	// Render the graphics scene.
-	result = Render(rotation);
+	result = Render();
 	SAFE_CHECKEXIST(result);
 
 	return true;
 }
 
-bool SynGraphics::Render(float rotation)
+bool SynGraphics::HandleInput(float frameTime, bool* pressedArray)
+{
+	bool result;
+	float posX, posY, posZ, rotX, rotY, rotZ;
+
+	// Set the frame time for calculating the updated position.
+	m_Position->SetFrameTime(frameTime);
+
+	// Handle the input.
+	m_Position->TurnLeft(pressedArray[1]);
+	m_Position->TurnRight(pressedArray[3]);
+	m_Position->MoveForward(pressedArray[0]);
+	m_Position->MoveBackward(pressedArray[2]);
+	m_Position->MoveUpward(pressedArray[5]);
+	m_Position->MoveDownward(pressedArray[7]);
+	m_Position->LookUpward(pressedArray[4]);
+	m_Position->LookDownward(pressedArray[6]);
+
+	// Get the view point position/rotation.
+	m_Position->GetPosition(posX, posY, posZ);
+	m_Position->GetRotation(rotX, rotY, rotZ);
+
+	// Set the position of the camera.
+	m_Camera->SetPosition(posX, posY, posZ);
+	m_Camera->SetRotation(rotX, rotY, rotZ);
+
+	return true;
+}
+
+bool SynGraphics::Render()
 {
 	D3DXVECTOR3 cameraPosition;
 	D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 	bool result;
-
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -258,8 +319,6 @@ bool SynGraphics::Render(float rotation)
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 	m_D3D->GetOrthoMatrix(orthoMatrix);
-
-
 
 	// Get the position of the camera.
 	cameraPosition = m_Camera->GetPosition();
@@ -276,18 +335,13 @@ bool SynGraphics::Render(float rotation)
 	// Render the sky dome using the sky dome shader.
 	m_SkyDome->Render(m_D3D->GetDeviceContext());
 	m_SkyDomeShader->Render(m_D3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
+	m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
 
 	// Turn back face culling back on.
 	m_D3D->TurnOnCulling();
 
-	// Turn the Z buffer back on.
-	m_D3D->TurnZBufferOn();
-
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
-
-
 
 	// Turn off the Z buffer to begin all 2D rendering.
 	m_D3D->TurnZBufferOff();
@@ -304,12 +358,6 @@ bool SynGraphics::Render(float rotation)
 	
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
-
-	//TODO: fix this scary thing
-	if (rotation!=0){
-		D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, 0, 0);
-	}
-	else D3DXMatrixRotationYawPitchRoll(&worldMatrix, 0, 0, 0);
 
 	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	//m_Model->Render(m_D3D->GetDeviceContext());
@@ -343,17 +391,4 @@ bool SynGraphics::TurnWF()
 	SAFE_CHECKEXIST(result);
 
 	return true;
-}
-
-void SynGraphics::ChangeCameraPosition(bool way)
-{	
-	D3DXVECTOR3 pos = m_Camera->GetPosition();
-	if (way)
-	{
-		m_Camera->SetPosition(pos.x, pos.y, pos.z + 10.5f);
-	}
-	else
-	{
-		m_Camera->SetPosition(pos.x, pos.y, pos.z - 10.5f);
-	}
 }

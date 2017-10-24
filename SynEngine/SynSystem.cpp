@@ -111,28 +111,22 @@ bool SynSystem::Frame()
 		return false;
 	}
 
-	if (m_Input->IsKeyDown(VK_UP))
-	{
-		m_Graphics->ChangeCameraPosition(1);
-	}
-	if (m_Input->IsKeyDown(VK_DOWN))
-	{
-		m_Graphics->ChangeCameraPosition(0);
-	}
-
-	int way=0;
-	if (m_Input->IsKeyDown(VK_LEFT))
-	{
-		way = 1;
-	}
-	if (m_Input->IsKeyDown(VK_RIGHT))
-	{
-		way = 2;
-	}
+	bool* pressedArray = new bool[8];
+	pressedArray[0] = m_Input->IsKeyDown(0x57); //W
+	pressedArray[1] = m_Input->IsKeyDown(0x41); //A
+	pressedArray[2] = m_Input->IsKeyDown(0x53); //S
+	pressedArray[3] = m_Input->IsKeyDown(0x44); //D
+	pressedArray[4] = m_Input->IsKeyDown(VK_UP);
+	pressedArray[5] = m_Input->IsKeyDown(VK_LEFT);
+	pressedArray[6] = m_Input->IsKeyDown(VK_DOWN);
+	pressedArray[7] = m_Input->IsKeyDown(VK_RIGHT);
 
 	// Do the frame processing for the graphics object.
-	result = m_Graphics->Frame(way);
+	result = m_Graphics->Frame(pressedArray);
 	SAFE_CHECKEXIST(result);
+
+	delete[] pressedArray;
+	pressedArray = 0;
 
 	return true;
 }
