@@ -4,7 +4,6 @@
 
 #include "common.h"
 #include <windows.h>
-#include "syninput.h"
 #include "syngraphics.h"
 
 class SynSystem
@@ -17,7 +16,6 @@ public:
 	bool Initialize();
 	void Shutdown();
 	void Run();
-	void ActivateWF();
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
@@ -31,7 +29,6 @@ private:
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;
 
-	SynInput* m_Input;
 	SynGraphics* m_Graphics;
 };
 

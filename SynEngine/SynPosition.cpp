@@ -14,6 +14,8 @@ SynPosition::SynPosition()
 
 	m_forwardSpeed = 0.0f;
 	m_backwardSpeed = 0.0f;
+	m_leftSpeed = 0.0f;
+	m_rightSpeed = 0.0f;
 	m_upwardSpeed = 0.0f;
 	m_downwardSpeed = 0.0f;
 	m_leftTurnSpeed = 0.0f;
@@ -134,6 +136,74 @@ void SynPosition::MoveBackward(bool keydown)
 	// Update the position.
 	m_positionX -= sinf(radians) * m_backwardSpeed;
 	m_positionZ -= cosf(radians) * m_backwardSpeed;
+
+	return;
+}
+
+void SynPosition::MoveLeft(bool keydown)
+{
+	float radians;
+
+	// Update the forward speed movement based on the frametime and whether the user is holding the key down or not.
+	if (keydown)
+	{
+		m_leftSpeed += m_frameTime * 0.001f;
+
+		if (m_leftSpeed > (m_frameTime * 0.03f))
+		{
+			m_leftSpeed = m_frameTime * 0.03f;
+		}
+	}
+	else
+	{
+		m_leftSpeed -= m_frameTime * 0.0007f;
+
+		if (m_leftSpeed < 0.0f)
+		{
+			m_leftSpeed = 0.0f;
+		}
+	}
+
+	// Convert degrees to radians.
+	radians = m_rotationY * 0.0174532925f;
+
+	// Update the position.
+	m_positionX += sinf(radians - 1.5708) * m_leftSpeed;
+	m_positionZ += cosf(radians - 1.5708) * m_leftSpeed;
+
+	return;
+}
+
+void SynPosition::MoveRight(bool keydown)
+{
+	float radians;
+
+	// Update the forward speed movement based on the frametime and whether the user is holding the key down or not.
+	if (keydown)
+	{
+		m_rightSpeed += m_frameTime * 0.001f;
+
+		if (m_rightSpeed > (m_frameTime * 0.03f))
+		{
+			m_rightSpeed = m_frameTime * 0.03f;
+		}
+	}
+	else
+	{
+		m_rightSpeed -= m_frameTime * 0.0007f;
+
+		if (m_rightSpeed < 0.0f)
+		{
+			m_rightSpeed = 0.0f;
+		}
+	}
+
+	// Convert degrees to radians.
+	radians = m_rotationY * 0.0174532925f;
+
+	// Update the position.
+	m_positionX -= sinf(radians - 1.5708) * m_rightSpeed;
+	m_positionZ -= cosf(radians - 1.5708) * m_rightSpeed;
 
 	return;
 }

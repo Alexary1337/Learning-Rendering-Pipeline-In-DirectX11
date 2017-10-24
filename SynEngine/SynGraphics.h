@@ -27,13 +27,13 @@ public:
 	SynGraphics(const SynGraphics&);
 	~SynGraphics();
 
-	bool Initialize(int, int, HWND);
+	bool Initialize(int, int, HWND, HINSTANCE);
 	void Shutdown();
-	bool Frame(bool[]);
+	bool Frame();
 	bool TurnWF();
 
 private:
-	bool HandleInput(float frameTime, bool[]);
+	bool HandleInput(float frameTime);
 	bool Render();
 
 private:

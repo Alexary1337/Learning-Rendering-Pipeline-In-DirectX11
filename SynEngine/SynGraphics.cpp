@@ -27,7 +27,7 @@ SynGraphics::~SynGraphics()
 
 }
 
-bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
+bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINSTANCE hinstance)
 {
 	bool result;
 
@@ -79,7 +79,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 			}
 		}
 
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/grey.dds", "../SynEngine/data/torus.obj", i);
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/palm_bark.png", "../SynEngine/data/torus.obj", i);
 		if (!result)
 		{
 			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
@@ -177,7 +177,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	m_Input = new SynInput;
 	SAFE_CHECKEXIST(m_Input);
-	m_Input->Initialize();
+	m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
 
 	return true;
 }
@@ -185,7 +185,11 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 void SynGraphics::Shutdown()
 {
 	// Release the input object.
-	SAFE_DELETE(m_Input);
+	if (m_Input)
+	{
+		m_Input->Shutdown();
+		SAFE_DELETE(m_Input);
+	}
 
 	// Release the position object.
 	if (m_Timer)
@@ -254,15 +258,33 @@ void SynGraphics::Shutdown()
 	return;
 }
 
-bool SynGraphics::Frame(bool* pressedArray)
+bool SynGraphics::Frame()
 {
 	bool result;
+
+	// Do the input frame processing.
+	result = m_Input->Frame();
+	if (!result)
+	{
+		return false;
+	}
+
+	// Check if the user pressed escape and wants to quit.
+	if (m_Input->IsEscapePressed() == true)
+	{
+		return false;
+	}
+
+	if (m_Input->IsKeyPressed(DIK_F1) == true)
+	{
+		TurnWF();;
+	}
 
 	// Update the system stats.
 	m_Timer->Frame();
 
 	// Do the frame input processing.
-	result = HandleInput(m_Timer->GetTime(), pressedArray);
+	result = HandleInput(m_Timer->GetTime());
  	SAFE_CHECKEXIST(result);
 
 
@@ -273,7 +295,7 @@ bool SynGraphics::Frame(bool* pressedArray)
 	return true;
 }
 
-bool SynGraphics::HandleInput(float frameTime, bool* pressedArray)
+bool SynGraphics::HandleInput(float frameTime)
 {
 	bool result;
 	float posX, posY, posZ, rotX, rotY, rotZ;
@@ -282,14 +304,18 @@ bool SynGraphics::HandleInput(float frameTime, bool* pressedArray)
 	m_Position->SetFrameTime(frameTime);
 
 	// Handle the input.
-	m_Position->TurnLeft(pressedArray[1]);
-	m_Position->TurnRight(pressedArray[3]);
-	m_Position->MoveForward(pressedArray[0]);
-	m_Position->MoveBackward(pressedArray[2]);
-	m_Position->MoveUpward(pressedArray[5]);
-	m_Position->MoveDownward(pressedArray[7]);
-	m_Position->LookUpward(pressedArray[4]);
-	m_Position->LookDownward(pressedArray[6]);
+	m_Position->TurnLeft(m_Input->IsKeyPressed(DIK_LEFT));
+	m_Position->TurnRight(m_Input->IsKeyPressed(DIK_RIGHT));
+	m_Position->MoveForward(m_Input->IsKeyPressed(DIK_W));
+
+	m_Position->MoveLeft(m_Input->IsKeyPressed(DIK_A));
+	m_Position->MoveRight(m_Input->IsKeyPressed(DIK_D));
+
+	m_Position->MoveBackward(m_Input->IsKeyPressed(DIK_S));
+	m_Position->MoveUpward(m_Input->IsKeyPressed(DIK_SPACE));
+	m_Position->MoveDownward(m_Input->IsKeyPressed(DIK_LCONTROL));
+	m_Position->LookUpward(m_Input->IsKeyPressed(DIK_UP));
+	m_Position->LookDownward(m_Input->IsKeyPressed(DIK_DOWN));
 
 	// Get the view point position/rotation.
 	m_Position->GetPosition(posX, posY, posZ);

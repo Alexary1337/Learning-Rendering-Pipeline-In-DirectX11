@@ -1,8 +1,8 @@
 #include "synsystem.h"
 #include "resource.h"
+
 SynSystem::SynSystem()
 {
-	SAFE_INIT(m_Input);
 	SAFE_INIT(m_Graphics);
 }
 SynSystem::SynSystem(const SynSystem& other)
@@ -27,19 +27,12 @@ bool SynSystem::Initialize()
 	// Initialize the windows api.
 	InitializeWindows(screenWidth, screenHeight);
 
-	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
-	m_Input = new SynInput;
-	SAFE_CHECKEXIST(m_Input);
-
-	// Initialize the input object.
-	m_Input->Initialize();
-
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
 	m_Graphics = new SynGraphics;
 	SAFE_CHECKEXIST(m_Graphics);
 
 	// Initialize the graphics object.
-	result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd);
+	result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd, m_hinstance);
 	SAFE_CHECKEXIST(result);
 
 	return true;
@@ -53,9 +46,6 @@ void SynSystem::Shutdown()
 		m_Graphics->Shutdown();
 		SAFE_DELETE(m_Graphics);
 	}
-
-	// Release the input object.
-	SAFE_DELETE(m_Input);
 
 	// Shutdown the window.
 	ShutdownWindows();
@@ -93,10 +83,10 @@ void SynSystem::Run()
 			result = Frame();
 			if (!result)
 			{
+				//MessageBoxW(m_hwnd, L"Frame Processing Failed", L"Error", MB_OK);
 				done = true;
 			}
-		}
-
+		}		
 	}
 	return;
 }
@@ -105,63 +95,16 @@ bool SynSystem::Frame()
 {
 	bool result;
 
-	// Check if the user pressed escape and wants to exit the application.
-	if (m_Input->IsKeyDown(VK_ESCAPE))
-	{
-		return false;
-	}
-
-	bool* pressedArray = new bool[8];
-	pressedArray[0] = m_Input->IsKeyDown(0x57); //W
-	pressedArray[1] = m_Input->IsKeyDown(0x41); //A
-	pressedArray[2] = m_Input->IsKeyDown(0x53); //S
-	pressedArray[3] = m_Input->IsKeyDown(0x44); //D
-	pressedArray[4] = m_Input->IsKeyDown(VK_UP);
-	pressedArray[5] = m_Input->IsKeyDown(VK_LEFT);
-	pressedArray[6] = m_Input->IsKeyDown(VK_DOWN);
-	pressedArray[7] = m_Input->IsKeyDown(VK_RIGHT);
-
 	// Do the frame processing for the graphics object.
-	result = m_Graphics->Frame(pressedArray);
+	result = m_Graphics->Frame();
 	SAFE_CHECKEXIST(result);
-
-	delete[] pressedArray;
-	pressedArray = 0;
 
 	return true;
 }
 
 LRESULT CALLBACK SynSystem::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	switch (umsg)
-	{
-		// Check if a key has been pressed on the keyboard.
-	case WM_KEYDOWN:
-	{
-		// If a key is pressed send it to the input object so it can record that state.
-		m_Input->KeyDown((unsigned int)wparam);
-
-		if ((unsigned int)wparam == 112)
-		{
-			ActivateWF();
-		}
-
-		return 0;
-	}
-
-	// Check if a key has been released on the keyboard.
-	case WM_KEYUP:
-	{
-		// If a key is released then send it to the input object so it can unset the state for that key.
-		m_Input->KeyUp((unsigned int)wparam);
-		return 0;
-	}
-
-	default:
-	{
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
-	}
-	}
 }
 
 void SynSystem::InitializeWindows(int& screenWidth, int& screenHeight)
@@ -264,16 +207,6 @@ void SynSystem::ShutdownWindows()
 
 	// Release the pointer to this class.
 	ApplicationHandle = NULL;
-
-	return;
-}
-
-void SynSystem::ActivateWF()
-{
-	if (m_Input->IsKeyDown(VK_F1))
-			{
-				m_Graphics->TurnWF();
-			}
 
 	return;
 }
