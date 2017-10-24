@@ -75,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SynPosition.cpp" />
     <ClCompile Include="SynSkyDomeShader.cpp" />
     <ClCompile Include="SynBitmap.cpp" />
     <ClCompile Include="SynCamera.cpp" />
@@ -91,10 +92,12 @@
     <ClCompile Include="SynSystem.cpp" />
     <ClCompile Include="SynText.cpp" />
     <ClCompile Include="SynTexture.cpp" />
+    <ClCompile Include="SynTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SynPosition.h" />
     <ClInclude Include="SynSkyDomeShader.h" />
     <ClInclude Include="SynBitmap.h" />
     <ClInclude Include="SynCamera.h" />
@@ -110,6 +113,7 @@
     <ClInclude Include="SynSystem.h" />
     <ClInclude Include="SynText.h" />
     <ClInclude Include="SynTexture.h" />
+    <ClInclude Include="SynTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Color.hlsl">
