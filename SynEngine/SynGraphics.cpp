@@ -12,6 +12,8 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_SkyDomeShader);
 	SAFE_INIT(m_Position);
 	SAFE_INIT(m_Timer);
+	SAFE_INIT(m_FpsCounter);
+	SAFE_INIT(m_CpuUsage);
 	SAFE_INIT(m_Input);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
@@ -62,7 +64,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_totalIndexCount = new int;
 	SAFE_CHECKEXIST(m_totalIndexCount);
 
-	const aiScene* importedModel = aiImportFile("../SynEngine/data/torus.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	const aiScene* importedModel = aiImportFile("../SynEngine/data/palm1.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
 	*m_meshCount = importedModel->mNumMeshes;
 	*m_totalIndexCount = 0;
 
@@ -71,7 +73,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	SAFE_CHECKEXIST(m_Model);
 
 
-	for (int i = 0; i < *m_meshCount; i++)
+	for (int i = 0; i < *m_meshCount/2; i++)
 	{
 		for (int j = 0; j < importedModel->mMeshes[i]->mNumFaces; j++) {
 			if (importedModel->mMeshes[i]->mFaces[j].mNumIndices == 3) {
@@ -79,7 +81,23 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 			}
 		}
 
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/palm_bark.png", "../SynEngine/data/torus.obj", i);
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/palm_bark.png", "../SynEngine/data/palm1.obj", i);
+		if (!result)
+		{
+			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
+			return false;
+		}
+	}
+
+	for (int i = *m_meshCount / 2; i < *m_meshCount; i++)
+	{
+		for (int j = 0; j < importedModel->mMeshes[i]->mNumFaces; j++) {
+			if (importedModel->mMeshes[i]->mFaces[j].mNumIndices == 3) {
+				*m_totalIndexCount += 3;
+			}
+		}
+
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/palm_leafs.png", "../SynEngine/data/palm1.obj", i);
 		if (!result)
 		{
 			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
@@ -175,6 +193,20 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		return false;
 	}
 
+	// Create the fps object.
+	m_FpsCounter = new SynFpsCounter;
+	SAFE_CHECKEXIST(m_FpsCounter);
+
+	// Initialize the fps object.
+	m_FpsCounter->Initialize();
+
+	// Create the cpu object.
+	m_CpuUsage = new SynCpuUsage;
+	SAFE_CHECKEXIST(m_CpuUsage);
+
+	// Initialize the cpu object.
+	m_CpuUsage->Initialize();
+
 	m_Input = new SynInput;
 	SAFE_CHECKEXIST(m_Input);
 	m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
@@ -189,6 +221,18 @@ void SynGraphics::Shutdown()
 	{
 		m_Input->Shutdown();
 		SAFE_DELETE(m_Input);
+	}
+
+	// Release the position object.
+	if (m_CpuUsage)
+	{
+		SAFE_DELETE(m_CpuUsage);
+	}
+
+	// Release the position object.
+	if (m_FpsCounter)
+	{
+		SAFE_DELETE(m_FpsCounter);
 	}
 
 	// Release the position object.
@@ -282,11 +326,20 @@ bool SynGraphics::Frame()
 
 	// Update the system stats.
 	m_Timer->Frame();
+	m_FpsCounter->Frame();
+	m_CpuUsage->Frame();
 
 	// Do the frame input processing.
 	result = HandleInput(m_Timer->GetTime());
  	SAFE_CHECKEXIST(result);
 
+	// Set the frames per second.
+	result = m_Text->SetFps(m_FpsCounter->GetFps(), m_D3D->GetDeviceContext());
+	SAFE_CHECKEXIST(result);
+
+	// Set the cpu usage.
+	result = m_Text->SetCpu(m_CpuUsage->GetCpuPercentage(), m_D3D->GetDeviceContext());
+	SAFE_CHECKEXIST(result);
 
 	// Render the graphics scene.
 	result = Render();
@@ -391,7 +444,7 @@ bool SynGraphics::Render()
 	for (int i = 0; i < *m_meshCount; i++)
 	{
 		m_Model[i].Render(m_D3D->GetDeviceContext());
-		result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model[i].GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(),
+		result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model[i].GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model[i].GetTexture(), m_Light->GetDirection(),
 				m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		SAFE_CHECKEXIST(result);
 	}

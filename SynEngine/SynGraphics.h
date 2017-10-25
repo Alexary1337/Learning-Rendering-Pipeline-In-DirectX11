@@ -12,10 +12,12 @@
 #include "synskydomeshader.h"
 #include "synposition.h"
 #include "syntimer.h"
+#include "synfpscounter.h"
+#include "syncpuusage.h"
 #include "syninput.h"
 #include "synbitmap.h"
 
-const bool FULL_SCREEN = false;
+const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 7000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -47,6 +49,8 @@ private:
 	SynSkyDomeShader* m_SkyDomeShader;
 	SynPosition* m_Position;
 	SynTimer* m_Timer;
+	SynFpsCounter* m_FpsCounter;
+	SynCpuUsage* m_CpuUsage;
 	SynInput* m_Input;
 	int* m_meshCount;
 	int* m_totalIndexCount;
