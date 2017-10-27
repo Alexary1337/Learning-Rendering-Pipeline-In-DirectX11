@@ -194,11 +194,11 @@ void SynInput::ProcessInput()
 	m_mouseY += m_mouseState.lY;
 
 	// Ensure the mouse location doesn't exceed the screen width or height.
-	if (m_mouseX < 0)  { m_mouseX = 0; }
-	if (m_mouseY < 0)  { m_mouseY = 0; }
+	if (m_mouseX < 0)  { m_mouseX = m_screenWidth/2; }
+	if (m_mouseY < 0)  { m_mouseY = m_screenWidth/2; }
 
-	if (m_mouseX > m_screenWidth)  { m_mouseX = m_screenWidth; }
-	if (m_mouseY > m_screenHeight) { m_mouseY = m_screenHeight; }
+	if (m_mouseX > m_screenWidth)  { m_mouseX = m_screenWidth/2; }
+	if (m_mouseY > m_screenHeight) { m_mouseY = m_screenHeight/2; }
 
 	return;
 }
@@ -224,4 +224,14 @@ void SynInput::GetMouseLocation(int& mouseX, int& mouseY)
 bool SynInput::IsKeyPressed(unsigned int key)
 {
 	return m_keyboardState[key];
+}
+
+int SynInput::GetMouseXLocation()
+{	
+	return m_mouseX;
+}
+
+int SynInput::GetMouseYLocation()
+{
+	return m_mouseY;
 }

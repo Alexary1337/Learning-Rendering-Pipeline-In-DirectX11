@@ -22,6 +22,9 @@ SynPosition::SynPosition()
 	m_rightTurnSpeed = 0.0f;
 	m_lookUpSpeed = 0.0f;
 	m_lookDownSpeed = 0.0f;
+
+	m_mouseXPrev = 0;
+	m_mouseYPrev = 0;
 }
 
 SynPosition::SynPosition(const SynPosition& other)
@@ -408,4 +411,21 @@ void SynPosition::LookDownward(bool keydown)
 	}
 
 	return;
+}
+
+void SynPosition::MouseTest(int X, int Y){
+
+
+	
+	m_rotationY += (X-m_mouseXPrev)/4;
+
+	
+	m_mouseXPrev = X;
+
+
+
+	m_rotationX += (Y-m_mouseYPrev)/4;
+
+	
+	m_mouseYPrev = Y;
 }

@@ -370,6 +370,8 @@ bool SynGraphics::HandleInput(float frameTime)
 	m_Position->LookUpward(m_Input->IsKeyPressed(DIK_UP));
 	m_Position->LookDownward(m_Input->IsKeyPressed(DIK_DOWN));
 
+	m_Position->MouseTest(m_Input->GetMouseXLocation(),m_Input->GetMouseYLocation());
+
 	// Get the view point position/rotation.
 	m_Position->GetPosition(posX, posY, posZ);
 	m_Position->GetRotation(rotX, rotY, rotZ);
