@@ -52,7 +52,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	SAFE_CHECKEXIST(m_Camera);
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f); //m_Camera->SetPosition(-10.0f, 60.0f, -250.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -0.11f); //TODO: fix bug with text rendering
 
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
@@ -64,7 +64,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_totalIndexCount = new int;
 	SAFE_CHECKEXIST(m_totalIndexCount);
 
-	const aiScene* importedModel = aiImportFile("../SynEngine/data/palm1.obj", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	const aiScene* importedModel = aiImportFile("../SynEngine/data/riffle.3ds", aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
 	*m_meshCount = importedModel->mNumMeshes;
 	*m_totalIndexCount = 0;
 
@@ -73,7 +73,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	SAFE_CHECKEXIST(m_Model);
 
 
-	for (int i = 0; i < *m_meshCount/2; i++)
+	for (int i = 0; i < *m_meshCount; i++)
 	{
 		for (int j = 0; j < importedModel->mMeshes[i]->mNumFaces; j++) {
 			if (importedModel->mMeshes[i]->mFaces[j].mNumIndices == 3) {
@@ -81,7 +81,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 			}
 		}
 
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/palm_bark.png", "../SynEngine/data/palm1.obj", i);
+		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/riffle.3ds", i);
 		if (!result)
 		{
 			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
@@ -89,30 +89,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		}
 	}
 
-	for (int i = *m_meshCount / 2; i < *m_meshCount; i++)
-	{
-		for (int j = 0; j < importedModel->mMeshes[i]->mNumFaces; j++) {
-			if (importedModel->mMeshes[i]->mFaces[j].mNumIndices == 3) {
-				*m_totalIndexCount += 3;
-			}
-		}
-
-		result = m_Model[i].Initialize(m_D3D->GetDevice(), L"../SynEngine/data/palm_leafs.png", "../SynEngine/data/palm1.obj", i);
-		if (!result)
-		{
-			MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
-			return false;
-		}
-	}
 	aiReleaseImport(importedModel);
-
-	//// Initialize the model object.
-	//result = m_Model->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/nissan.psd", "../SynEngine/data/gtr.3ds");
-	//if (!result)
-	//{
-	//	MessageBox(hwnd, "Could not initialize the model object. Check path in SynGraphics cpp file.", "Error", MB_OK);
-	//	return false;
-	//}	
 
 	// Create the color shader object.
 	m_ColorShader = new SynColorShader;
@@ -131,11 +108,11 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	SAFE_CHECKEXIST(m_Light);
 
 	// Initialize the light object.
-	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_Light->SetAmbientColor(0.35f, 0.35f, 0.35f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(1.0f, 0.0f, 1.0f);
+	m_Light->SetDirection(1.0f, -1.0f, 0.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetSpecularPower(64.0f);
+	m_Light->SetSpecularPower(32.0f);
 
 	// Create the text object.
 	m_Text = new SynText;
@@ -172,7 +149,6 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		MessageBoxW(hwnd, L"Could not initialize the sky dome shader object.", L"Error", MB_OK);
 		return false;
 	}
-
 
 	// Create the position object.
 	m_Position = new SynPosition;
@@ -224,28 +200,16 @@ void SynGraphics::Shutdown()
 	}
 
 	// Release the position object.
-	if (m_CpuUsage)
-	{
-		SAFE_DELETE(m_CpuUsage);
-	}
+	SAFE_DELETE(m_CpuUsage);
 
 	// Release the position object.
-	if (m_FpsCounter)
-	{
-		SAFE_DELETE(m_FpsCounter);
-	}
+	SAFE_DELETE(m_FpsCounter);	
 
 	// Release the position object.
-	if (m_Timer)
-	{
-		SAFE_DELETE(m_Timer);
-	}
+	SAFE_DELETE(m_Timer);
 
 	// Release the position object.
-	if (m_Position)
-	{
-		SAFE_DELETE(m_Position);
-	}
+	SAFE_DELETE(m_Position);
 
 	// Release the sky dome shader object.
 	if (m_SkyDomeShader)
@@ -269,10 +233,7 @@ void SynGraphics::Shutdown()
 	}
 	
 	// Release the light object.
-	if (m_Light)
-	{
-		SAFE_DELETE(m_Light);
-	}
+	SAFE_DELETE(m_Light);
 
 	// Release the color shader object.
 	if (m_ColorShader)
@@ -289,10 +250,7 @@ void SynGraphics::Shutdown()
 	}
 
 	// Release the camera object.
-	if (m_Camera)
-	{
-		SAFE_DELETE(m_Camera);
-	}
+	SAFE_DELETE(m_Camera);
 
 	if (m_D3D)
 	{
@@ -440,9 +398,8 @@ bool SynGraphics::Render()
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
-	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	//m_Model->Render(m_D3D->GetDeviceContext());
-
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	D3DXMatrixRotationX(&worldMatrix, 1.6f);
 	for (int i = 0; i < *m_meshCount; i++)
 	{
 		m_Model[i].Render(m_D3D->GetDeviceContext());
@@ -450,14 +407,6 @@ bool SynGraphics::Render()
 				m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		SAFE_CHECKEXIST(result);
 	}
-
-	//// Render the model using the color shader.
-	//result = m_ColorShader->Render(m_D3D->GetDeviceContext(), *m_totalIndexCount, worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(),
-	//	m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-	//if (!result)
-	//{
-	//	return false;
-	//}
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();

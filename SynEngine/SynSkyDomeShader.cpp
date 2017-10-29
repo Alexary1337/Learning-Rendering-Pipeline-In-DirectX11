@@ -294,7 +294,6 @@ bool SynSkyDomeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D
 	return true;
 }
 
-
 void SynSkyDomeShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// Set the vertex input layout.

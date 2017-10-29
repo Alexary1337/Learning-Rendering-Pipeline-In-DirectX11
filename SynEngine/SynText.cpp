@@ -262,18 +262,10 @@ void SynText::ReleaseSentence(SentenceType** sentence)
 	if (*sentence)
 	{
 		// Release the sentence vertex buffer.
-		if ((*sentence)->vertexBuffer)
-		{
-			(*sentence)->vertexBuffer->Release();
-			(*sentence)->vertexBuffer = 0;
-		}
+		SAFE_RELEASE((*sentence)->vertexBuffer);
 
 		// Release the sentence index buffer.
-		if ((*sentence)->indexBuffer)
-		{
-			(*sentence)->indexBuffer->Release();
-			(*sentence)->indexBuffer = 0;
-		}
+		SAFE_RELEASE((*sentence)->indexBuffer);
 
 		// Release the sentence.
 		SAFE_DELETE(*sentence);

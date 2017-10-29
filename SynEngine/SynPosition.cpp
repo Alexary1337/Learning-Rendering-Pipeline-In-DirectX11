@@ -23,6 +23,8 @@ SynPosition::SynPosition()
 	m_lookUpSpeed = 0.0f;
 	m_lookDownSpeed = 0.0f;
 
+	m_moveSpeed = 0.0001f;
+
 	m_mouseXPrev = 0;
 	m_mouseYPrev = 0;
 }
@@ -83,7 +85,7 @@ void SynPosition::MoveForward(bool keydown)
 	// Update the forward speed movement based on the frametime and whether the user is holding the key down or not.
 	if (keydown)
 	{
-		m_forwardSpeed += m_frameTime * 0.001f;
+		m_forwardSpeed += m_frameTime * m_moveSpeed;
 
 		if (m_forwardSpeed > (m_frameTime * 0.03f))
 		{
@@ -122,7 +124,7 @@ void SynPosition::MoveBackward(bool keydown)
 	// Update the backward speed movement based on the frame time and whether the user is holding the key down or not.
 	if (keydown)
 	{
-		m_backwardSpeed += m_frameTime * 0.001f;
+		m_backwardSpeed += m_frameTime * m_moveSpeed;
 
 		if (m_backwardSpeed > (m_frameTime * 0.03f))
 		{
@@ -160,7 +162,7 @@ void SynPosition::MoveLeft(bool keydown)
 	// Update the forward speed movement based on the frametime and whether the user is holding the key down or not.
 	if (keydown)
 	{
-		m_leftSpeed += m_frameTime * 0.001f;
+		m_leftSpeed += m_frameTime * m_moveSpeed;
 
 		if (m_leftSpeed > (m_frameTime * 0.03f))
 		{
@@ -194,7 +196,7 @@ void SynPosition::MoveRight(bool keydown)
 	// Update the forward speed movement based on the frametime and whether the user is holding the key down or not.
 	if (keydown)
 	{
-		m_rightSpeed += m_frameTime * 0.001f;
+		m_rightSpeed += m_frameTime * m_moveSpeed;
 
 		if (m_rightSpeed > (m_frameTime * 0.03f))
 		{
@@ -226,7 +228,7 @@ void SynPosition::MoveUpward(bool keydown)
 	// Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
 	if (keydown)
 	{
-		m_upwardSpeed += m_frameTime * 0.003f;
+		m_upwardSpeed += m_frameTime * m_moveSpeed;
 
 		if (m_upwardSpeed > (m_frameTime * 0.03f))
 		{
@@ -254,7 +256,7 @@ void SynPosition::MoveDownward(bool keydown)
 	// Update the downward speed movement based on the frame time and whether the user is holding the key down or not.
 	if (keydown)
 	{
-		m_downwardSpeed += m_frameTime * 0.003f;
+		m_downwardSpeed += m_frameTime * m_moveSpeed;
 
 		if (m_downwardSpeed > (m_frameTime * 0.03f))
 		{
@@ -413,19 +415,9 @@ void SynPosition::LookDownward(bool keydown)
 	return;
 }
 
-void SynPosition::MouseTest(int X, int Y){
-
-
-	
-	m_rotationY += (X-m_mouseXPrev)/4;
-
-	
+void SynPosition::MouseTest(int X, int Y){	
+	m_rotationY += (X-m_mouseXPrev)/4;	
 	m_mouseXPrev = X;
-
-
-
 	m_rotationX += (Y-m_mouseYPrev)/4;
-
-	
 	m_mouseYPrev = Y;
 }

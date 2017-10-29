@@ -116,11 +116,7 @@ void SynInput::Shutdown()
 	}
 
 	// Release the main interface to direct input.
-	if (m_directInput)
-	{
-		m_directInput->Release();
-		m_directInput = 0;
-	}
+	SAFE_RELEASE(m_directInput);
 
 	return;
 }

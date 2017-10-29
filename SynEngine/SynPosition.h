@@ -42,7 +42,7 @@ private:
 	float m_upwardSpeed, m_downwardSpeed;
 	float m_leftTurnSpeed, m_rightTurnSpeed;
 	float m_lookUpSpeed, m_lookDownSpeed;
-
+	float m_moveSpeed;
 	int m_mouseXPrev, m_mouseYPrev;
 };
 
