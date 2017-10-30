@@ -41,7 +41,7 @@ public:
 	ID3D11ShaderResourceView* GetTexture();
 
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers(ID3D11Device*, char*, int);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 

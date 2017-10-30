@@ -24,11 +24,11 @@ bool SynModel::Initialize(ID3D11Device* device, WCHAR* textureFilename, char* mo
 	bool result;
 
 	// Load in the model data,
-	result = LoadModelAssimp(modelFilename, meshIndex);
-	SAFE_CHECKEXIST(result);
+	//result = LoadModelAssimp(modelFilename, meshIndex);
+	//SAFE_CHECKEXIST(result);
 
 	// Initialize the vertex and index buffer that hold the geometry for the triangle.
-	result = InitializeBuffers(device);
+	result = InitializeBuffers(device, modelFilename, meshIndex);
 	SAFE_CHECKEXIST(result);
 
 	// Load the texture for this model.
@@ -70,12 +70,28 @@ ID3D11ShaderResourceView* SynModel::GetTexture()
 	return m_Texture->GetTexture();
 }
 
-bool SynModel::InitializeBuffers(ID3D11Device* device)
+bool SynModel::InitializeBuffers(ID3D11Device* device, char* filename, int meshIndex)
 {
 	VertexType* vertices;
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
+
+	const aiScene* importedModel = aiImportFile(filename, aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+	SAFE_CHECKEXIST(importedModel);
+
+	m_vertexCount = importedModel->mMeshes[meshIndex]->mNumVertices;
+
+	std::vector<unsigned long> indicesVector;
+	for (int i = 0; i < importedModel->mMeshes[meshIndex]->mNumFaces; i++) {
+		const aiFace& Face = importedModel->mMeshes[meshIndex]->mFaces[i];
+		if (Face.mNumIndices == 3) {
+			indicesVector.push_back(Face.mIndices[0]);
+			indicesVector.push_back(Face.mIndices[1]);
+			indicesVector.push_back(Face.mIndices[2]);
+		}
+	}
+	m_indexCount = indicesVector.size();
 
 	// Create the vertex array.
 	vertices = new VertexType[m_vertexCount];
@@ -84,13 +100,19 @@ bool SynModel::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
+	const aiMesh *mesh = importedModel->mMeshes[meshIndex];
+
 	// Load the vertex array and index array with data.
 	for(int i=0; i<m_vertexCount; i++)
 	{
-		vertices[i].position = D3DXVECTOR3(m_model[i].x, m_model[i].y, m_model[i].z);
-		vertices[i].texture = D3DXVECTOR2(m_model[i].tu, m_model[i].tv);
-		vertices[i].normal = D3DXVECTOR3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
+		vertices[i].position = D3DXVECTOR3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		if (importedModel->mMeshes[meshIndex]->HasTextureCoords(0)){
+			vertices[i].texture = D3DXVECTOR2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+		}
+		vertices[i].normal = D3DXVECTOR3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 	}
+
+	aiReleaseImport(importedModel);
 
 	// Set up the description of the static vertex buffer.
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -121,7 +143,7 @@ bool SynModel::InitializeBuffers(ID3D11Device* device)
 	indexBufferDesc.StructureByteStride = 0;
 
 	// Give the subresource structure a pointer to the index data.
-	indexData.pSysMem = m_indices;
+	indexData.pSysMem = &indicesVector[0];
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -135,7 +157,7 @@ bool SynModel::InitializeBuffers(ID3D11Device* device)
 	// Release the arrays now that the vertex and index buffers have been created and loaded.
 	SAFE_DELETE_ARRAY(vertices);
 	SAFE_DELETE_ARRAY(m_indices);
-	
+    indicesVector.clear();
 	return true;
 }
 
@@ -199,50 +221,7 @@ void SynModel::ReleaseTexture()
 
 bool SynModel::LoadModelAssimp(char* filename, int meshIndex)
 {
-	const aiScene* importedModel = aiImportFile(filename, aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
-	SAFE_CHECKEXIST(importedModel);
-
-	m_vertexCount = importedModel->mMeshes[meshIndex]->mNumVertices;
-
-	std::vector<unsigned long> indicesVector;
-	for (int i = 0; i < importedModel->mMeshes[meshIndex]->mNumFaces; i++) {
-		const aiFace& Face = importedModel->mMeshes[meshIndex]->mFaces[i];
-		if (Face.mNumIndices == 3) {
-			indicesVector.push_back(Face.mIndices[0]);
-			indicesVector.push_back(Face.mIndices[1]);
-			indicesVector.push_back(Face.mIndices[2]);
-		}
-	}
-	m_indexCount = indicesVector.size();
-
-	// Create the index array.
-	m_indices = new unsigned long[m_indexCount];
-	SAFE_CHECKEXIST(m_indices);
-
-	for (int i = 0; i < m_indexCount; i++)
-	{
-		m_indices[i] = indicesVector[i];
-	}
-
-	m_model = new ModelType[m_vertexCount];
-	SAFE_CHECKEXIST(m_model);
-
-	for (int i = 0; i<m_vertexCount; i++)
-	{
-		m_model[i].x = importedModel->mMeshes[meshIndex]->mVertices[i].x;
-		m_model[i].y = importedModel->mMeshes[meshIndex]->mVertices[i].y;
-		m_model[i].z = importedModel->mMeshes[meshIndex]->mVertices[i].z;
-		if (importedModel->mMeshes[meshIndex]->HasTextureCoords(0)){
-			m_model[i].tu = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].x;
-			m_model[i].tv = importedModel->mMeshes[meshIndex]->mTextureCoords[0][i].y;							
-		}
-		m_model[i].nx = importedModel->mMeshes[meshIndex]->mNormals[i].x;
-		m_model[i].ny = importedModel->mMeshes[meshIndex]->mNormals[i].y;
-		m_model[i].nz = importedModel->mMeshes[meshIndex]->mNormals[i].z;
-	}
-
-	aiReleaseImport(importedModel);
-	
+    // functionality moved to InitializeBuffers function, cause of lack of optimization
 	return true;
 }
 
