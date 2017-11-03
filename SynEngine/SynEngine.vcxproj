@@ -92,6 +92,7 @@
     <ClCompile Include="SynModel.cpp" />
     <ClCompile Include="SynSkyDome.cpp" />
     <ClCompile Include="SynSystem.cpp" />
+    <ClCompile Include="SynTerrain.cpp" />
     <ClCompile Include="SynText.cpp" />
     <ClCompile Include="SynTexture.cpp" />
     <ClCompile Include="SynTimer.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="SynModel.h" />
     <ClInclude Include="SynSkyDome.h" />
     <ClInclude Include="SynSystem.h" />
+    <ClInclude Include="SynTerrain.h" />
     <ClInclude Include="SynText.h" />
     <ClInclude Include="SynTexture.h" />
     <ClInclude Include="SynTimer.h" />

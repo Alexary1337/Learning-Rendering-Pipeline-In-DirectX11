@@ -16,8 +16,9 @@
 #include "syncpuusage.h"
 #include "syninput.h"
 #include "synbitmap.h"
+#include "synterrain.h"
 
-const bool FULL_SCREEN = false;
+const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 7000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -52,6 +53,7 @@ private:
 	SynFpsCounter* m_FpsCounter;
 	SynCpuUsage* m_CpuUsage;
 	SynInput* m_Input;
+	SynTerrain* m_Terrain;
 	int* m_meshCount;
 	int* m_totalIndexCount;
 };

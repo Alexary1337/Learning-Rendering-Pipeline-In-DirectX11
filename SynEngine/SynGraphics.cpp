@@ -15,6 +15,8 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_FpsCounter);
 	SAFE_INIT(m_CpuUsage);
 	SAFE_INIT(m_Input);
+	//TODO
+	//SAFE_INIT(m_Terrain);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
 }
@@ -186,12 +188,21 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_Input = new SynInput;
 	SAFE_CHECKEXIST(m_Input);
 	m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
+	
+	//TODO
+	/*m_Terrain = new SynTerrain;
+	SAFE_CHECKEXIST(m_Terrain);
+	m_Terrain->Initialize(m_D3D->GetDevice);*/
 
 	return true;
 }
 
 void SynGraphics::Shutdown()
 {
+	//TODO
+	// Release the terrain object.
+	//SAFE_DELETE(m_Terrain);
+
 	// Release the input object.
 	if (m_Input)
 	{
@@ -306,6 +317,7 @@ bool SynGraphics::Frame()
 	return true;
 }
 
+//float radius=0.0f;
 bool SynGraphics::HandleInput(float frameTime)
 {
 	bool result;
@@ -337,6 +349,7 @@ bool SynGraphics::HandleInput(float frameTime)
 	// Set the position of the camera.
 	m_Camera->SetPosition(posX, posY, posZ);
 	m_Camera->SetRotation(rotX, rotY, rotZ);
+	//radius += 0.5f;
 
 	return true;
 }
@@ -407,6 +420,11 @@ bool SynGraphics::Render()
 				m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		SAFE_CHECKEXIST(result);
 	}
+
+	//TODO
+	/*m_Terrain->Render(m_D3D->GetDeviceContext());
+	result = m_ColorShader->Render(...);
+	SAFE_CHECKEXIST(result);*/
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();
