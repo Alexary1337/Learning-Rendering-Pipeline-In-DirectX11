@@ -3,8 +3,8 @@
 
 #include "common.h"
 #include <d3d11.h>
-#include <directxmath.h>
-using namespace DirectX;
+#include <d3dx10math.h>
+#include "syntexture.h"
 
 class SynTerrain
 {
@@ -12,8 +12,9 @@ private:
 
 	struct VertexType
 	{
-		XMFLOAT3 position;
-		XMFLOAT4 color;
+		D3DXVECTOR3 position;
+		D3DXVECTOR2 texture;
+		D3DXVECTOR3 normal;
 	};
 
 public:
@@ -21,9 +22,11 @@ public:
 	SynTerrain(const SynTerrain&);
 	~SynTerrain();
 
-	bool Initialize(ID3D11Device*);
+	bool Initialize(ID3D11Device*, WCHAR*);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*);
+
+	ID3D11ShaderResourceView* GetTexture();
 
 	int GetIndexCount();
 
@@ -32,8 +35,12 @@ private:
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 
+	bool LoadTexture(ID3D11Device*, WCHAR*);
+	void ReleaseTexture();
+
 private:
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
+	SynTexture* m_Texture;
 	int m_vertexCount, m_indexCount;
 };
 

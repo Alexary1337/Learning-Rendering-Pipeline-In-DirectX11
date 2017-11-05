@@ -15,8 +15,7 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_FpsCounter);
 	SAFE_INIT(m_CpuUsage);
 	SAFE_INIT(m_Input);
-	//TODO
-	//SAFE_INIT(m_Terrain);
+	SAFE_INIT(m_Terrain);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
 }
@@ -189,19 +188,17 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	SAFE_CHECKEXIST(m_Input);
 	m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
 	
-	//TODO
-	/*m_Terrain = new SynTerrain;
+	m_Terrain = new SynTerrain;
 	SAFE_CHECKEXIST(m_Terrain);
-	m_Terrain->Initialize(m_D3D->GetDevice);*/
+	m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds");
 
 	return true;
 }
 
 void SynGraphics::Shutdown()
 {
-	//TODO
 	// Release the terrain object.
-	//SAFE_DELETE(m_Terrain);
+	SAFE_DELETE(m_Terrain);
 
 	// Release the input object.
 	if (m_Input)
@@ -411,6 +408,12 @@ bool SynGraphics::Render()
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
+
+	m_Terrain->Render(m_D3D->GetDeviceContext());
+	result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Terrain->GetTexture(), m_Light->GetDirection(),
+		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	SAFE_CHECKEXIST(result);
+
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	D3DXMatrixRotationX(&worldMatrix, 1.6f);
 	for (int i = 0; i < *m_meshCount; i++)
@@ -420,11 +423,6 @@ bool SynGraphics::Render()
 				m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		SAFE_CHECKEXIST(result);
 	}
-
-	//TODO
-	/*m_Terrain->Render(m_D3D->GetDeviceContext());
-	result = m_ColorShader->Render(...);
-	SAFE_CHECKEXIST(result);*/
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();
