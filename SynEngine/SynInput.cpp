@@ -93,6 +93,8 @@ bool SynInput::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int s
 		return false;
 	}
 
+	m_F1_released = true;
+
 	return true;
 
 }
@@ -230,4 +232,23 @@ int SynInput::GetMouseXLocation()
 int SynInput::GetMouseYLocation()
 {
 	return m_mouseY;
+}
+
+bool SynInput::IsF1Toggled()
+{
+	// Do a bitwise and on the keyboard state to check if the key is currently being pressed.
+	if (m_keyboardState[DIK_F1] & 0x80)
+	{
+		if (m_F1_released)
+		{
+			m_F1_released = false;
+			return true;
+		}
+	}
+	else
+	{
+		m_F1_released = true;
+	}
+
+	return false;
 }

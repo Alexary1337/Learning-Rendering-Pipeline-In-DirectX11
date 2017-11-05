@@ -285,11 +285,6 @@ bool SynGraphics::Frame()
 		return false;
 	}
 
-	if (m_Input->IsKeyPressed(DIK_F1) == true)
-	{
-		TurnWF();;
-	}
-
 	// Update the system stats.
 	m_Timer->Frame();
 	m_FpsCounter->Frame();
@@ -347,6 +342,11 @@ bool SynGraphics::HandleInput(float frameTime)
 	m_Camera->SetPosition(posX, posY, posZ);
 	m_Camera->SetRotation(rotX, rotY, rotZ);
 	//radius += 0.5f;
+
+	if (m_Input->IsF1Toggled())
+	{
+		TurnWF();
+	}
 
 	return true;
 }

@@ -25,11 +25,14 @@ public:
 	int GetMouseXLocation();
 	int GetMouseYLocation();
 	bool IsKeyPressed(unsigned int key);
+	bool IsF1Toggled();
 
 private:
 	bool ReadKeyboard();
 	bool ReadMouse();
 	void ProcessInput();
+
+	bool m_F1_released;
 
 private:
 
