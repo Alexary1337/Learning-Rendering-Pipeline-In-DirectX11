@@ -190,7 +190,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	
 	m_Terrain = new SynTerrain;
 	SAFE_CHECKEXIST(m_Terrain);
-	m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds");
+	m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/heightmap.bmp");
 
 	return true;
 }

@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include "syntexture.h"
+#include <stdio.h>
 
 class SynTerrain
 {
@@ -17,12 +18,17 @@ private:
 		D3DXVECTOR3 normal;
 	};
 
+	struct HeightMapType
+	{
+		float x, y, z;
+	};
+
 public:
 	SynTerrain();
 	SynTerrain(const SynTerrain&);
 	~SynTerrain();
 
-	bool Initialize(ID3D11Device*, WCHAR*);
+	bool Initialize(ID3D11Device*, WCHAR*, char*);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*);
 
@@ -31,6 +37,11 @@ public:
 	int GetIndexCount();
 
 private:
+	bool LoadHeightMap(char*);
+	void NormalizeHeightMap();
+	void ShutdownHeightMap();
+
+
 	bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
@@ -42,6 +53,9 @@ private:
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
 	SynTexture* m_Texture;
 	int m_vertexCount, m_indexCount;
+	int m_terrainWidth, m_terrainHeight;
+
+	HeightMapType* m_heightMap;
 };
 
 #endif
