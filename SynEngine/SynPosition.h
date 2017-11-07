@@ -29,7 +29,7 @@ public:
 	void TurnRight(bool);
 	void LookUpward(bool);
 	void LookDownward(bool);
-	void MouseTest(int, int);
+	void MouseRotate(int*);
 
 private:
 	float m_positionX, m_positionY, m_positionZ;
@@ -43,7 +43,6 @@ private:
 	float m_leftTurnSpeed, m_rightTurnSpeed;
 	float m_lookUpSpeed, m_lookDownSpeed;
 	float m_moveSpeed;
-	int m_mouseXPrev, m_mouseYPrev;
 };
 
 #endif

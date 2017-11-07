@@ -5,6 +5,7 @@ SynInput::SynInput()
 	SAFE_INIT(m_directInput);
 	SAFE_INIT(m_keyboard);
 	SAFE_INIT(m_mouse);
+	SAFE_INIT(m_mouseDelta);
 }
 
 SynInput::SynInput(const SynInput& other)
@@ -21,6 +22,7 @@ bool SynInput::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int s
 {
 	HRESULT result;
 
+	m_mouseDelta = new int[2];
 
 	// Store the screen size which will be used for positioning the mouse cursor.
 	m_screenWidth = screenWidth;
@@ -101,6 +103,8 @@ bool SynInput::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int s
 
 void SynInput::Shutdown()
 {
+	SAFE_DELETE(m_mouseDelta);
+
 	// Release the mouse.
 	if (m_mouse)
 	{
@@ -123,7 +127,7 @@ void SynInput::Shutdown()
 	return;
 }
 
-bool SynInput::Frame()
+int* SynInput::Frame()
 {
 	bool result;
 
@@ -138,7 +142,7 @@ bool SynInput::Frame()
 	// Process the changes in the mouse and keyboard.
 	ProcessInput();
 
-	return true;
+	return m_mouseDelta;
 }
 
 bool SynInput::ReadKeyboard()
@@ -191,12 +195,15 @@ void SynInput::ProcessInput()
 	m_mouseX += m_mouseState.lX;
 	m_mouseY += m_mouseState.lY;
 
-	// Ensure the mouse location doesn't exceed the screen width or height.
-	if (m_mouseX < 0)  { m_mouseX = m_screenWidth/2; }
-	if (m_mouseY < 0)  { m_mouseY = m_screenWidth/2; }
+	m_mouseDelta[0] = m_mouseX - m_mouseState.lX;
+	m_mouseDelta[1] = m_mouseY - m_mouseState.lY;
 
-	if (m_mouseX > m_screenWidth)  { m_mouseX = m_screenWidth/2; }
-	if (m_mouseY > m_screenHeight) { m_mouseY = m_screenHeight/2; }
+	// Ensure the mouse location doesn't exceed the screen width or height.
+	//if (m_mouseX < 0)  { m_mouseX = 0; }
+	//if (m_mouseY < 0)  { m_mouseY = 0; }
+
+	//if (m_mouseX > m_screenWidth)  { m_mouseX = m_screenWidth; }
+	//if (m_mouseY > m_screenHeight) { m_mouseY = m_screenHeight; }
 
 	return;
 }

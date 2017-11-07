@@ -18,7 +18,7 @@
 #include "synbitmap.h"
 #include "synterrain.h"
 
-const bool FULL_SCREEN = false;
+const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 7000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -56,6 +56,8 @@ private:
 	SynTerrain* m_Terrain;
 	int* m_meshCount;
 	int* m_totalIndexCount;
+
+	D3DXVECTOR3* m_translationVector3D;
 };
 
 #endif

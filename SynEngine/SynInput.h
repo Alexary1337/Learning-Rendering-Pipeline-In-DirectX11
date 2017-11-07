@@ -18,7 +18,7 @@ public:
 
 	bool Initialize(HINSTANCE, HWND, int, int);
 	void Shutdown();
-	bool Frame();
+	int* Frame();
 
 	bool IsEscapePressed();
 	void GetMouseLocation(int&, int&);
@@ -43,6 +43,7 @@ private:
 	unsigned char m_keyboardState[256];
 	DIMOUSESTATE m_mouseState;
 
+	int* m_mouseDelta;
 	int m_screenWidth, m_screenHeight;
 	int m_mouseX, m_mouseY;
 };

@@ -18,6 +18,7 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_Terrain);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
+	SAFE_INIT(m_translationVector3D);	
 }
 
 SynGraphics::SynGraphics(const SynGraphics& other)
@@ -190,13 +191,17 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	
 	m_Terrain = new SynTerrain;
 	SAFE_CHECKEXIST(m_Terrain);
-	m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/heightmap.bmp");
+	m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/test123.bmp");
+
+	m_translationVector3D = new D3DXVECTOR3(-135.0f, -10.0f, -135.0f);
 
 	return true;
 }
 
 void SynGraphics::Shutdown()
 {
+	SAFE_DELETE(m_translationVector3D);
+
 	// Release the terrain object.
 	SAFE_DELETE(m_Terrain);
 
@@ -272,12 +277,8 @@ bool SynGraphics::Frame()
 {
 	bool result;
 
-	// Do the input frame processing.
-	result = m_Input->Frame();
-	if (!result)
-	{
-		return false;
-	}
+	// Do the input frame processing + camera rotation update.
+	m_Position->MouseRotate(m_Input->Frame());
 
 	// Check if the user pressed escape and wants to quit.
 	if (m_Input->IsEscapePressed() == true)
@@ -331,8 +332,6 @@ bool SynGraphics::HandleInput(float frameTime)
 	m_Position->MoveDownward(m_Input->IsKeyPressed(DIK_LCONTROL));
 	m_Position->LookUpward(m_Input->IsKeyPressed(DIK_UP));
 	m_Position->LookDownward(m_Input->IsKeyPressed(DIK_DOWN));
-
-	m_Position->MouseTest(m_Input->GetMouseXLocation(),m_Input->GetMouseYLocation());
 
 	// Get the view point position/rotation.
 	m_Position->GetPosition(posX, posY, posZ);
@@ -408,7 +407,7 @@ bool SynGraphics::Render()
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
-
+	D3DXMatrixTransformation(&worldMatrix, NULL, NULL, NULL, NULL, NULL, m_translationVector3D);
 	m_Terrain->Render(m_D3D->GetDeviceContext());
 	result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Terrain->GetTexture(), m_Light->GetDirection(),
 		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
