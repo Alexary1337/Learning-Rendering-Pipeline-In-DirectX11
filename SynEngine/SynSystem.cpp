@@ -181,7 +181,7 @@ void SynSystem::InitializeWindows(int& screenWidth, int& screenHeight)
 	SetFocus(m_hwnd);
 
 	// Hide the mouse cursor.
-	ShowCursor(true);	
+	ShowCursor(false);	
 
 	return;
 }

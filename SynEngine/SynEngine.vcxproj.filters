@@ -78,6 +78,9 @@
     <ClCompile Include="SynTerrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SynTerrainShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SynD3D.h">
@@ -146,11 +149,11 @@
     <ClInclude Include="SynTerrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SynTerrainShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Color.hlsl">
-      <Filter>Source Files</Filter>
-    </FxCompile>
     <FxCompile Include="ModelVertexShader.hlsl">
       <Filter>Source Files</Filter>
     </FxCompile>
@@ -161,6 +164,12 @@
       <Filter>Source Files</Filter>
     </FxCompile>
     <FxCompile Include="SkyDomePixelShader.hlsl">
+      <Filter>Source Files</Filter>
+    </FxCompile>
+    <FxCompile Include="TerrainVertexShader.hlsl">
+      <Filter>Source Files</Filter>
+    </FxCompile>
+    <FxCompile Include="TerrainPixelShader.hlsl">
       <Filter>Source Files</Filter>
     </FxCompile>
   </ItemGroup>

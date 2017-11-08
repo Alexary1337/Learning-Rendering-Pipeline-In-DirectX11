@@ -17,6 +17,7 @@
 #include "syninput.h"
 #include "synbitmap.h"
 #include "synterrain.h"
+#include "synterrainshader.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -54,6 +55,7 @@ private:
 	SynCpuUsage* m_CpuUsage;
 	SynInput* m_Input;
 	SynTerrain* m_Terrain;
+	SynTerrainShader* m_TerrainShader;
 	int* m_meshCount;
 	int* m_totalIndexCount;
 

@@ -16,6 +16,7 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_CpuUsage);
 	SAFE_INIT(m_Input);
 	SAFE_INIT(m_Terrain);
+	SAFE_INIT(m_TerrainShader);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
 	SAFE_INIT(m_translationVector3D);	
@@ -193,6 +194,18 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	SAFE_CHECKEXIST(m_Terrain);
 	m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/test123.bmp");
 
+	// Create the terrain shader object.
+	m_TerrainShader = new SynTerrainShader;
+	SAFE_CHECKEXIST(m_TerrainShader);
+
+	// Initialize the terrain shader object.
+	result = m_TerrainShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, "Could not initialize the color shader object.", "Error", MB_OK);
+		return false;
+	}
+
 	m_translationVector3D = new D3DXVECTOR3(-135.0f, -10.0f, -135.0f);
 
 	return true;
@@ -201,6 +214,13 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 void SynGraphics::Shutdown()
 {
 	SAFE_DELETE(m_translationVector3D);
+
+	// Release the terrain shader object.
+	if (m_TerrainShader)
+	{
+		m_TerrainShader->Shutdown();
+		SAFE_DELETE(m_TerrainShader);
+	}
 
 	// Release the terrain object.
 	SAFE_DELETE(m_Terrain);
@@ -409,8 +429,8 @@ bool SynGraphics::Render()
 
 	D3DXMatrixTransformation(&worldMatrix, NULL, NULL, NULL, NULL, NULL, m_translationVector3D);
 	m_Terrain->Render(m_D3D->GetDeviceContext());
-	result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Terrain->GetTexture(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	result = m_TerrainShader->Render(m_D3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection());
 	SAFE_CHECKEXIST(result);
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.

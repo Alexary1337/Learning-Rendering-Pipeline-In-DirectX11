@@ -93,6 +93,7 @@
     <ClCompile Include="SynSkyDome.cpp" />
     <ClCompile Include="SynSystem.cpp" />
     <ClCompile Include="SynTerrain.cpp" />
+    <ClCompile Include="SynTerrainShader.cpp" />
     <ClCompile Include="SynText.cpp" />
     <ClCompile Include="SynTexture.cpp" />
     <ClCompile Include="SynTimer.cpp" />
@@ -117,15 +118,12 @@
     <ClInclude Include="SynSkyDome.h" />
     <ClInclude Include="SynSystem.h" />
     <ClInclude Include="SynTerrain.h" />
+    <ClInclude Include="SynTerrainShader.h" />
     <ClInclude Include="SynText.h" />
     <ClInclude Include="SynTexture.h" />
     <ClInclude Include="SynTimer.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Color.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-    </FxCompile>
     <FxCompile Include="ModelPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -139,6 +137,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="SkyDomeVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="TerrainPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="TerrainVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>

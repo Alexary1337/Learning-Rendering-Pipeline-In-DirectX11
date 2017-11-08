@@ -10,15 +10,19 @@
 class SynTerrain
 {
 private:
-
 	struct VertexType
 	{
 		D3DXVECTOR3 position;
-		D3DXVECTOR2 texture;
 		D3DXVECTOR3 normal;
 	};
 
 	struct HeightMapType
+	{
+		float x, y, z;
+		float nx, ny, nz;
+	};
+
+	struct VectorType
 	{
 		float x, y, z;
 	};
@@ -39,6 +43,7 @@ public:
 private:
 	bool LoadHeightMap(char*);
 	void NormalizeHeightMap();
+	bool CalculateNormals();
 	void ShutdownHeightMap();
 
 
