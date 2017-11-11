@@ -26,6 +26,8 @@ public:
 	int GetMouseYLocation();
 	bool IsKeyPressed(unsigned int key);
 	bool IsF1Toggled();
+	bool IsF2Toggled();
+	bool IsF3Toggled();
 
 private:
 	bool ReadKeyboard();
@@ -33,6 +35,8 @@ private:
 	void ProcessInput();
 
 	bool m_F1_released;
+	bool m_F2_released;
+	bool m_F3_released;
 
 private:
 

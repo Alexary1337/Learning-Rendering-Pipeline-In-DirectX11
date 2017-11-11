@@ -43,10 +43,13 @@ public:
 	void TurnOnAlphaBlending();
 	void TurnOffAlphaBlending();
 
-	void TurnOnCulling();
-	void TurnOffCulling();
+	void TurnDefaultRaster();
+	void TurnSkydomeRaster();
+	void TurnTerrainRaster();
 
-	bool Wireframe();
+	bool WireframeDefaultRaster();
+	bool WireframeSkydomeRaster();
+	bool WireframeTerrainRaster();
 
 private:
 	bool m_vsync_enabled;
@@ -68,7 +71,9 @@ private:
 	ID3D11BlendState* m_alphaEnableBlendingState;
 	ID3D11BlendState* m_alphaDisableBlendingState;
 
-	ID3D11RasterizerState* m_rasterStateNoCulling;
+	ID3D11RasterizerState* m_rasterStateSkydome;
+	ID3D11RasterizerState* m_rasterStateTerrain;
+
 };
 
 

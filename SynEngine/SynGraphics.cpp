@@ -1,5 +1,5 @@
 #include "syngraphics.h"
-
+float func(float x, float z);
 SynGraphics::SynGraphics()
 {
 	SAFE_INIT(m_D3D);
@@ -49,7 +49,8 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		MessageBox(hwnd, "Could not initialize Direct3D", "Error", MB_OK);
 		return false;
 	}
-	
+	CONSOLE_OUT("Direct3D component initialized.");
+
 	// Create the camera object.
 	m_Camera = new SynCamera;
 	SAFE_CHECKEXIST(m_Camera);
@@ -59,6 +60,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
+	CONSOLE_OUT("Camera component initialized.");
 
 	//TODO: refactor multi mesh rendering pipeline
 	m_meshCount = new int;
@@ -93,6 +95,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 
 	aiReleaseImport(importedModel);
+	CONSOLE_OUT("Model component initialized.");
 
 	// Create the color shader object.
 	m_ColorShader = new SynColorShader;
@@ -105,17 +108,19 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		MessageBox(hwnd, "Could not initialize the color shader object.", "Error", MB_OK);
 		return false;
 	}
+	CONSOLE_OUT("Model shader component initialized.");
 
 	// Create the light object.
 	m_Light = new SynLight;
 	SAFE_CHECKEXIST(m_Light);
 
 	// Initialize the light object.
-	m_Light->SetAmbientColor(0.35f, 0.35f, 0.35f, 1.0f);
-	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
+	m_Light->SetDiffuseColor(0.2f, 0.2f, 0.2f, 1.0f);
 	m_Light->SetDirection(1.0f, -1.0f, 0.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
+	CONSOLE_OUT("Light component initialized.");
 
 	// Create the text object.
 	m_Text = new SynText;
@@ -128,6 +133,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		MessageBox(hwnd, "Could not initialize the text object.", "Error", MB_OK);
 		return false;
 	}
+	CONSOLE_OUT("Text component initialized.");
 
 	// Create the sky dome object.
 	m_SkyDome = new SynSkyDome;
@@ -140,6 +146,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		MessageBoxW(hwnd, L"Could not initialize the sky dome object.", L"Error", MB_OK);
 		return false;
 	}
+	CONSOLE_OUT("Skydome component initialized.");
 
 	// Create the sky dome shader object.
 	m_SkyDomeShader = new SynSkyDomeShader;
@@ -152,6 +159,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		MessageBoxW(hwnd, L"Could not initialize the sky dome shader object.", L"Error", MB_OK);
 		return false;
 	}
+	CONSOLE_OUT("Skydome shader component initialized.");
 
 	// Create the position object.
 	m_Position = new SynPosition;
@@ -159,6 +167,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 
 	// Set the initial position of the viewer to the same as the initial camera position.
 	m_Position->SetPosition(0.0f, 0.0f, 0.0f);
+	CONSOLE_OUT("Position component initialized.");
 
 	// Create the timer object.
 	m_Timer = new SynTimer;
@@ -171,6 +180,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 		MessageBoxW(hwnd, L"Could not initialize the timer object.", L"Error", MB_OK);
 		return false;
 	}
+	CONSOLE_OUT("Timer component initialized.");
 
 	// Create the fps object.
 	m_FpsCounter = new SynFpsCounter;
@@ -178,6 +188,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 
 	// Initialize the fps object.
 	m_FpsCounter->Initialize();
+	CONSOLE_OUT("FPS counter component initialized.");
 
 	// Create the cpu object.
 	m_CpuUsage = new SynCpuUsage;
@@ -185,14 +196,18 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 
 	// Initialize the cpu object.
 	m_CpuUsage->Initialize();
+	CONSOLE_OUT("CPU usage component initialized.");
 
 	m_Input = new SynInput;
 	SAFE_CHECKEXIST(m_Input);
 	m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
-	
+	CONSOLE_OUT("Input component initialized.");
+
 	m_Terrain = new SynTerrain;
 	SAFE_CHECKEXIST(m_Terrain);
-	m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/test123.bmp");
+	//m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/test123.bmp");	
+	m_Terrain->InitializeByFunction(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", 512, -12.8f, -12.8f, func);
+	CONSOLE_OUT("Terrain component initialized.");
 
 	// Create the terrain shader object.
 	m_TerrainShader = new SynTerrainShader;
@@ -202,13 +217,21 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	result = m_TerrainShader->Initialize(m_D3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, "Could not initialize the color shader object.", "Error", MB_OK);
+		MessageBox(hwnd, "Could not initialize the terrain shader object.", "Error", MB_OK);
 		return false;
 	}
+	CONSOLE_OUT("Terrain shader component initialized.");
 
 	m_translationVector3D = new D3DXVECTOR3(-135.0f, -10.0f, -135.0f);
 
 	return true;
+}
+
+float func(float x, float z)
+{
+	return sinf(x)*cosf(z);
+	//return sqrtf(x*x + z*z) + 3 * cosf(sqrtf(x*x + z*z)) + 5;
+
 }
 
 void SynGraphics::Shutdown()
@@ -360,11 +383,20 @@ bool SynGraphics::HandleInput(float frameTime)
 	// Set the position of the camera.
 	m_Camera->SetPosition(posX, posY, posZ);
 	m_Camera->SetRotation(rotX, rotY, rotZ);
-	//radius += 0.5f;
 
 	if (m_Input->IsF1Toggled())
 	{
-		TurnWF();
+		ToggleTerrainWireframe();
+	}
+
+	if (m_Input->IsF2Toggled())
+	{
+		ToggleModelWireframe();
+	}
+	
+	if (m_Input->IsF3Toggled())
+	{
+		ToggleSkydomeWireframe();
 	}
 
 	return true;
@@ -395,7 +427,7 @@ bool SynGraphics::Render()
 	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 	// Turn off back face culling.
-	m_D3D->TurnOffCulling();
+	m_D3D->TurnSkydomeRaster();
 
 	// Turn off the Z buffer.
 	m_D3D->TurnZBufferOff();
@@ -406,7 +438,7 @@ bool SynGraphics::Render()
 	m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
 
 	// Turn back face culling back on.
-	m_D3D->TurnOnCulling();
+	m_D3D->TurnDefaultRaster();
 
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
@@ -427,11 +459,13 @@ bool SynGraphics::Render()
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
-	D3DXMatrixTransformation(&worldMatrix, NULL, NULL, NULL, NULL, NULL, m_translationVector3D);
+	m_D3D->TurnTerrainRaster();
+	//D3DXMatrixTransformation(&worldMatrix, NULL, NULL, NULL, NULL, NULL, m_translationVector3D);
 	m_Terrain->Render(m_D3D->GetDeviceContext());
 	result = m_TerrainShader->Render(m_D3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection());
 	SAFE_CHECKEXIST(result);
+	m_D3D->TurnDefaultRaster();
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	D3DXMatrixRotationX(&worldMatrix, 1.6f);
@@ -448,11 +482,31 @@ bool SynGraphics::Render()
 	return true;
 }
 
-bool SynGraphics::TurnWF()
+bool SynGraphics::ToggleTerrainWireframe()
 {
 	bool result;
 
-	result = m_D3D->Wireframe();
+	result = m_D3D->WireframeTerrainRaster();
+	SAFE_CHECKEXIST(result);
+
+	return true;
+}
+
+bool SynGraphics::ToggleModelWireframe()
+{
+	bool result;
+
+	result = m_D3D->WireframeDefaultRaster();
+	SAFE_CHECKEXIST(result);
+
+	return true;
+}
+
+bool SynGraphics::ToggleSkydomeWireframe()
+{
+	bool result;
+
+	result = m_D3D->WireframeSkydomeRaster();
 	SAFE_CHECKEXIST(result);
 
 	return true;

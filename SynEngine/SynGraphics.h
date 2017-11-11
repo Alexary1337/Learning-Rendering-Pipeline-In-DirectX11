@@ -19,8 +19,8 @@
 #include "synterrain.h"
 #include "synterrainshader.h"
 
-const bool FULL_SCREEN = true;
-const bool VSYNC_ENABLED = true;
+const bool FULL_SCREEN = false;
+const bool VSYNC_ENABLED = false;
 const float SCREEN_DEPTH = 7000.0f;
 const float SCREEN_NEAR = 0.1f;
 
@@ -34,7 +34,9 @@ public:
 	bool Initialize(int, int, HWND, HINSTANCE);
 	void Shutdown();
 	bool Frame();
-	bool TurnWF();
+	bool ToggleTerrainWireframe();
+	bool ToggleModelWireframe();
+	bool ToggleSkydomeWireframe();
 
 private:
 	bool HandleInput(float frameTime);

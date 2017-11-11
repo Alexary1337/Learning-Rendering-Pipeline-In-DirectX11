@@ -5,6 +5,11 @@
 #include "common.h"
 #include <windows.h>
 #include "syngraphics.h"
+#include <stdio.h>
+#include <io.h> 
+#include <fcntl.h>
+
+using namespace std;
 
 class SynSystem
 {

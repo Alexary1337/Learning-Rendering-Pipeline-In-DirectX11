@@ -26,6 +26,7 @@ bool SynSystem::Initialize()
 
 	// Initialize the windows api.
 	InitializeWindows(screenWidth, screenHeight);
+	CONSOLE_OUT("Window created.");
 
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
 	m_Graphics = new SynGraphics;
@@ -34,6 +35,7 @@ bool SynSystem::Initialize()
 	// Initialize the graphics object.
 	result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd, m_hinstance);
 	SAFE_CHECKEXIST(result);
+	CONSOLE_OUT("Graphics component initialized.");
 
 	return true;
 }
@@ -49,6 +51,7 @@ void SynSystem::Shutdown()
 
 	// Shutdown the window.
 	ShutdownWindows();
+	CONSOLE_OUT("Window destroyed.");
 
 	return;
 }

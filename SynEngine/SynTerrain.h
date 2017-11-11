@@ -33,6 +33,8 @@ public:
 	~SynTerrain();
 
 	bool Initialize(ID3D11Device*, WCHAR*, char*);
+	bool InitializeByFunction(ID3D11Device*, WCHAR*, float, float, float, float(*f)(float, float));
+
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*);
 
@@ -41,6 +43,7 @@ public:
 	int GetIndexCount();
 
 private:
+	bool LoadMapByFunction(float, float, float, float(*f)(float, float));
 	bool LoadHeightMap(char*);
 	void NormalizeHeightMap();
 	bool CalculateNormals();

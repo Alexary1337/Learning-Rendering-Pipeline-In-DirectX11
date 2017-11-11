@@ -413,6 +413,6 @@ void SynPosition::LookDownward(bool keydown)
 }
 
 void SynPosition::MouseRotate(int* delta){	
-	m_rotationX = delta[1] * 0.5f;
-	m_rotationY = delta[0] * 0.5f;
+	m_rotationX = delta[1] * 0.2f;
+	m_rotationY = delta[0] * 0.2f;
 }

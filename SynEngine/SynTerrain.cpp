@@ -43,6 +43,29 @@ bool SynTerrain::Initialize(ID3D11Device* device, WCHAR* textureFilename, char* 
 	return true;
 }
 
+bool SynTerrain::InitializeByFunction(ID3D11Device* device, WCHAR* textureFilename, float square, float initXPos, float initZPos, float(*f)(float, float))
+{
+	bool result;
+	
+	// Load in the height map for the terrain.
+	result = LoadMapByFunction(square, initXPos, initZPos, (*f));
+	SAFE_CHECKEXIST(result);
+	
+	// Calculate the normals for the terrain data.
+	result = CalculateNormals();
+	SAFE_CHECKEXIST(result);
+
+	// Load the rendering buffers with the terrain data.
+	result = InitializeBuffers(device);
+	SAFE_CHECKEXIST(result);
+
+	// Load the texture for terrain.
+	result = LoadTexture(device, textureFilename);
+	SAFE_CHECKEXIST(result);
+
+	return true;
+}
+
 void SynTerrain::Shutdown()
 {
 	// Release the model texture.
@@ -55,6 +78,38 @@ void SynTerrain::Shutdown()
 	ShutdownHeightMap();
 
 	return;
+}
+
+bool SynTerrain::LoadMapByFunction(float square, float initXPos, float initZPos, float(*f)(float, float))
+{		
+	float step = abs(initXPos * 2 / square);
+
+	m_terrainHeight = square;
+	m_terrainWidth = square;
+
+	m_heightMap = new HeightMapType[m_terrainWidth * m_terrainHeight];
+	SAFE_CHECKEXIST(m_heightMap);
+
+	float xPos = initXPos;
+	float zPos = initZPos;
+
+	int index;
+
+	for (int j = 0; j < m_terrainHeight; j++)
+	{
+		for (int i = 0; i < m_terrainWidth; i++)
+		{
+			index = (m_terrainHeight * j) + i;
+			m_heightMap[index].x = xPos;
+			m_heightMap[index].y = (*f)(xPos,zPos);
+			m_heightMap[index].z = zPos;
+			xPos += step;
+		}
+		xPos = initXPos;
+		zPos += step;
+	}
+
+	return true;
 }
 
 bool SynTerrain::LoadHeightMap(char* filename)

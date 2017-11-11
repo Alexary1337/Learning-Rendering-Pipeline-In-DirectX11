@@ -13,7 +13,8 @@ SynD3D::SynD3D()
 	SAFE_INIT(m_rasterState);
 	SAFE_INIT(m_alphaEnableBlendingState);
 	SAFE_INIT(m_alphaDisableBlendingState);
-	SAFE_INIT(m_rasterStateNoCulling);
+	SAFE_INIT(m_rasterStateSkydome);
+	SAFE_INIT(m_rasterStateTerrain);
 }
 
 SynD3D::SynD3D(const SynD3D& other)
@@ -294,7 +295,7 @@ bool SynD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 
-	//-----------------------Extra (like wireframe, double faces renering e.t.c)---------------------------------------------
+	//-----------------------Extra (like wireframe, double faces rendering e.t.c)---------------------------------------------
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
@@ -331,7 +332,14 @@ bool SynD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	// Create the no culling rasterizer state.
-	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateNoCulling);
+	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateSkydome);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Create the no culling rasterizer state.
+	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateTerrain);
 	if (FAILED(result))
 	{
 		return false;
@@ -431,7 +439,8 @@ void SynD3D::Shutdown()
 
 	SAFE_RELEASE(m_alphaEnableBlendingState);	
 	SAFE_RELEASE(m_alphaDisableBlendingState);
-	SAFE_RELEASE(m_rasterStateNoCulling);
+	SAFE_RELEASE(m_rasterStateSkydome);
+	SAFE_RELEASE(m_rasterStateTerrain);
 	SAFE_RELEASE(m_rasterState);
 	SAFE_RELEASE(m_depthDisabledStencilState);
 	SAFE_RELEASE(m_depthStencilView);
@@ -560,7 +569,7 @@ void SynD3D::TurnOffAlphaBlending()
 	return;
 }
 
-void SynD3D::TurnOnCulling()
+void SynD3D::TurnDefaultRaster()
 {
 	// Set the culling rasterizer state.
 	m_deviceContext->RSSetState(m_rasterState);
@@ -568,23 +577,38 @@ void SynD3D::TurnOnCulling()
 	return;
 }
 
-void SynD3D::TurnOffCulling()
+void SynD3D::TurnSkydomeRaster()
 {
 	// Set the no back face culling rasterizer state.
-	m_deviceContext->RSSetState(m_rasterStateNoCulling);
+	m_deviceContext->RSSetState(m_rasterStateSkydome);
 
 	return;
 }
 
-bool SynD3D::Wireframe()
+void SynD3D::TurnTerrainRaster()
+{
+	// Set the no back face culling rasterizer state.
+	m_deviceContext->RSSetState(m_rasterStateTerrain);
+
+	return;
+}
+
+bool SynD3D::WireframeDefaultRaster()
 {
 	HRESULT result;
 	D3D11_RASTERIZER_DESC rasterDesc;
 
 	m_rasterState->GetDesc(&rasterDesc);
 	if (rasterDesc.FillMode == D3D11_FILL_WIREFRAME)
+	{
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
-	else rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+		CONSOLE_OUT("Model wireframe mode OFF.");
+	}
+	else
+	{ 
+		rasterDesc.FillMode = D3D11_FILL_WIREFRAME; 
+		CONSOLE_OUT("Model wireframe mode ON.");
+	}
 	
 	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
 	if (FAILED(result))
@@ -595,5 +619,63 @@ bool SynD3D::Wireframe()
 	// Now set the rasterizer state.
 	m_deviceContext->RSSetState(m_rasterState);
 	
+	return true;
+}
+
+bool SynD3D::WireframeSkydomeRaster()
+{
+	HRESULT result;
+	D3D11_RASTERIZER_DESC rasterDesc;
+
+	m_rasterStateSkydome->GetDesc(&rasterDesc);
+	if (rasterDesc.FillMode == D3D11_FILL_WIREFRAME)
+	{
+		rasterDesc.FillMode = D3D11_FILL_SOLID;
+		CONSOLE_OUT("Skydome wireframe mode OFF.");
+	}
+	else
+	{
+		rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+		CONSOLE_OUT("Skydome wireframe mode ON.");
+	}
+
+	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateSkydome);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Now set the rasterizer state.
+	m_deviceContext->RSSetState(m_rasterStateSkydome);
+
+	return true;
+}
+
+bool SynD3D::WireframeTerrainRaster()
+{
+	HRESULT result;
+	D3D11_RASTERIZER_DESC rasterDesc;
+
+	m_rasterStateTerrain->GetDesc(&rasterDesc);
+	if (rasterDesc.FillMode == D3D11_FILL_WIREFRAME)
+	{
+		rasterDesc.FillMode = D3D11_FILL_SOLID;
+		CONSOLE_OUT("Terrain wireframe mode OFF.");
+	}
+	else
+	{
+		rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+		CONSOLE_OUT("Terrain wireframe mode ON.");
+	}
+
+	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateTerrain);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Now set the rasterizer state.
+	m_deviceContext->RSSetState(m_rasterStateTerrain);
+
 	return true;
 }
