@@ -6,11 +6,10 @@ This project is based on [Rastertek's tutorials](http://www.rastertek.com).
 * [Assimp v3.3.1](http://assimp.org/) [(Source)](https://github.com/assimp/assimp)
 
 ### Current progress showcase:
-![Promo](ReadmeData/skull.png)
-![Promo](ReadmeData/skullWF.png)
+![Promo](ReadmeData/pr1.png)
 ![Promo](ReadmeData/pr5.png)
-![Promo](ReadmeData/pr2.png)
-![Promo](ReadmeData/pr4.png)
+![Promo](ReadmeData/pr6.png)
+![Promo](ReadmeData/pr7.png)
 
 ## HM1
 ### 1.
