@@ -35,6 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 void AllocateConsole()
 {
+#ifdef _DEBUG
 	AllocConsole();
 
 	// Get STDOUT handle
@@ -68,4 +69,5 @@ void AllocateConsole()
 	std::cerr.clear();
 	std::wcin.clear();
 	std::cin.clear();
+#endif
 }

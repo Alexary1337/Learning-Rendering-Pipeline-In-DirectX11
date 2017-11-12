@@ -38,6 +38,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 
 	D3DXMATRIX baseViewMatrix;
 
+	CONSOLE_OUT("Initializing Direct3D component...");
 	// Create the Direct3D object.
 	m_D3D = new SynD3D;
 	SAFE_CHECKEXIST(m_D3D);
@@ -51,6 +52,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Direct3D component initialized.");
 
+	CONSOLE_OUT("Initializing camera component...");
 	// Create the camera object.
 	m_Camera = new SynCamera;
 	SAFE_CHECKEXIST(m_Camera);
@@ -62,6 +64,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_Camera->GetViewMatrix(baseViewMatrix);
 	CONSOLE_OUT("Camera component initialized.");
 
+	CONSOLE_OUT("Initializing model component...");
 	//TODO: refactor multi mesh rendering pipeline
 	m_meshCount = new int;
 	SAFE_CHECKEXIST(m_meshCount);
@@ -76,7 +79,6 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	// Create the model object.
 	m_Model = new SynModel[*m_meshCount];
 	SAFE_CHECKEXIST(m_Model);
-
 
 	for (int i = 0; i < *m_meshCount; i++)
 	{
@@ -97,6 +99,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	aiReleaseImport(importedModel);
 	CONSOLE_OUT("Model component initialized.");
 
+	CONSOLE_OUT("Initializing model shader component...");
 	// Create the color shader object.
 	m_ColorShader = new SynColorShader;
 	SAFE_CHECKEXIST(m_ColorShader);
@@ -110,6 +113,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Model shader component initialized.");
 
+	CONSOLE_OUT("Initializing light component...");
 	// Create the light object.
 	m_Light = new SynLight;
 	SAFE_CHECKEXIST(m_Light);
@@ -122,6 +126,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_Light->SetSpecularPower(32.0f);
 	CONSOLE_OUT("Light component initialized.");
 
+	CONSOLE_OUT("Initializing text component...");
 	// Create the text object.
 	m_Text = new SynText;
 	SAFE_CHECKEXIST(m_Text);
@@ -135,6 +140,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Text component initialized.");
 
+	CONSOLE_OUT("Initializing skydome component...");
 	// Create the sky dome object.
 	m_SkyDome = new SynSkyDome;
 	SAFE_CHECKEXIST(m_SkyDome);
@@ -148,6 +154,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Skydome component initialized.");
 
+	CONSOLE_OUT("Initializing skydome shader component...");
 	// Create the sky dome shader object.
 	m_SkyDomeShader = new SynSkyDomeShader;
 	SAFE_CHECKEXIST(m_SkyDomeShader);
@@ -161,6 +168,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Skydome shader component initialized.");
 
+	CONSOLE_OUT("Initializing position component...");
 	// Create the position object.
 	m_Position = new SynPosition;
 	SAFE_CHECKEXIST(m_Position);
@@ -169,6 +177,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_Position->SetPosition(0.0f, 0.0f, 0.0f);
 	CONSOLE_OUT("Position component initialized.");
 
+	CONSOLE_OUT("Initializing timer component...");
 	// Create the timer object.
 	m_Timer = new SynTimer;
 	SAFE_CHECKEXIST(m_Timer);
@@ -182,6 +191,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Timer component initialized.");
 
+	CONSOLE_OUT("Initializing FPS counter component...");
 	// Create the fps object.
 	m_FpsCounter = new SynFpsCounter;
 	SAFE_CHECKEXIST(m_FpsCounter);
@@ -190,6 +200,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_FpsCounter->Initialize();
 	CONSOLE_OUT("FPS counter component initialized.");
 
+	CONSOLE_OUT("Initializing CPU usage component...");
 	// Create the cpu object.
 	m_CpuUsage = new SynCpuUsage;
 	SAFE_CHECKEXIST(m_CpuUsage);
@@ -198,17 +209,20 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_CpuUsage->Initialize();
 	CONSOLE_OUT("CPU usage component initialized.");
 
+	CONSOLE_OUT("Initializing input component...");
 	m_Input = new SynInput;
 	SAFE_CHECKEXIST(m_Input);
 	m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
 	CONSOLE_OUT("Input component initialized.");
 
+	CONSOLE_OUT("Initializing terrain component...");
 	m_Terrain = new SynTerrain;
 	SAFE_CHECKEXIST(m_Terrain);
 	//m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/test123.bmp");	
-	m_Terrain->InitializeByFunction(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", 512, -12.8f, -12.8f, func);
+	m_Terrain->InitializeByFunction(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", 20, -10.0f, -10.0f, func);
 	CONSOLE_OUT("Terrain component initialized.");
 
+	CONSOLE_OUT("Initializing terrain shader component...");
 	// Create the terrain shader object.
 	m_TerrainShader = new SynTerrainShader;
 	SAFE_CHECKEXIST(m_TerrainShader);
@@ -229,8 +243,10 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 
 float func(float x, float z)
 {
-	return sinf(x)*cosf(z);
+	//return 100 - 3 / sqrtf(x*x + z*z) + sinf(sqrtf(x*x + z*z)) + sqrtf(200 - x*x + z*z + 10 * sinf(x) + 10 * sinf(z)) / 1000; //todo
+	//return sinf(x)*cosf(z);
 	//return sqrtf(x*x + z*z) + 3 * cosf(sqrtf(x*x + z*z)) + 5;
+	return (x*x) - (z*z);
 
 }
 
