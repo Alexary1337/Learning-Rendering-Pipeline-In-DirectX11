@@ -6,6 +6,7 @@ SynText::SynText()
 	SAFE_INIT(m_FontShader);
 	SAFE_INIT(m_sentence1);
 	SAFE_INIT(m_sentence2);
+	SAFE_INIT(m_sentence3);
 }
 
 SynText::SynText(const SynText& other)
@@ -62,6 +63,10 @@ bool SynText::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	result = InitializeSentence(&m_sentence2, 16, device);
 	SAFE_CHECKEXIST(result);
 
+	// Initialize the first sentence.
+	result = InitializeSentence(&m_sentence3, 128, device);
+	SAFE_CHECKEXIST(result);
+
 	return true;
 }
 
@@ -72,6 +77,9 @@ void SynText::Shutdown()
 
 	// Release the second sentence.
 	ReleaseSentence(&m_sentence2);
+
+	// Release the second sentence.
+	ReleaseSentence(&m_sentence3);
 
 	// Release the font shader object.
 	if (m_FontShader)
@@ -100,6 +108,10 @@ bool SynText::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix,
 
 	// Draw the second sentence.
 	result = RenderSentence(deviceContext, m_sentence2, worldMatrix, orthoMatrix);
+	SAFE_CHECKEXIST(result);
+
+	// Draw the second sentence.
+	result = RenderSentence(deviceContext, m_sentence3, worldMatrix, orthoMatrix);
 	SAFE_CHECKEXIST(result);
 
 	return true;
@@ -351,10 +363,7 @@ bool SynText::SetFps(int fps, ID3D11DeviceContext* deviceContext)
 
 	// Update the sentence vertex buffer with the new string information.
 	result = UpdateSentence(m_sentence1, fpsString, 20, 20, red, green, blue, deviceContext);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }
@@ -375,10 +384,10 @@ bool SynText::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
 
 	// Update the sentence vertex buffer with the new string information.
 	result = UpdateSentence(m_sentence2, cpuString, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
-	if (!result)
-	{
-		return false;
-	}
+	SAFE_CHECKEXIST(result);
+
+	result = UpdateSentence(m_sentence3, "Function: Y = sqrt(x^2 + z^2) + 3 * cos(sqrt(x^2 + z^2)) + 5", 20, 60, 0.0f, 1.0f, 0.0f, deviceContext);
+	SAFE_CHECKEXIST(result);
 
 	return true;
 }

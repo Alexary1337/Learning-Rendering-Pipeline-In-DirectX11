@@ -219,7 +219,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	m_Terrain = new SynTerrain;
 	SAFE_CHECKEXIST(m_Terrain);
 	//m_Terrain->Initialize(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", "../SynEngine/data/test123.bmp");	
-	m_Terrain->InitializeByFunction(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", 20, -10.0f, -10.0f, func);
+	m_Terrain->InitializeByFunction(m_D3D->GetDevice(), L"../SynEngine/data/riffle.dds", 128, -32.0f, -32.0f, func);
 	CONSOLE_OUT("Terrain component initialized.");
 
 	CONSOLE_OUT("Initializing terrain shader component...");
@@ -245,8 +245,8 @@ float func(float x, float z)
 {
 	//return 100 - 3 / sqrtf(x*x + z*z) + sinf(sqrtf(x*x + z*z)) + sqrtf(200 - x*x + z*z + 10 * sinf(x) + 10 * sinf(z)) / 1000; //todo
 	//return sinf(x)*cosf(z);
-	//return sqrtf(x*x + z*z) + 3 * cosf(sqrtf(x*x + z*z)) + 5;
-	return (x*x) - (z*z);
+	return sqrtf(x*x + z*z) + 3 * cosf(sqrtf(x*x + z*z)) + 5;
+	//return (x*x) - (z*z);
 
 }
 
