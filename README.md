@@ -10,6 +10,8 @@ This project is based on [Rastertek's tutorials](http://www.rastertek.com).
 ![Promo](ReadmeData/pr5.png)
 ![Promo](ReadmeData/pr6.png)
 ![Promo](ReadmeData/pr7.png)
+![Promo](ReadmeData/pr8.png)
+![Promo](ReadmeData/pr9.png)
 
 ## HM1
 ### 1.
