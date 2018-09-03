@@ -290,7 +290,7 @@ void SynPosition::TurnLeft(bool keydown)
 	}
 	else
 	{
-		m_leftTurnSpeed -= m_frameTime* 0.005f;
+		m_leftTurnSpeed -= m_frameTime * 0.005f;
 
 		if (m_leftTurnSpeed < 0.0f)
 		{
@@ -324,7 +324,7 @@ void SynPosition::TurnRight(bool keydown)
 	}
 	else
 	{
-		m_rightTurnSpeed -= m_frameTime* 0.005f;
+		m_rightTurnSpeed -= m_frameTime * 0.005f;
 
 		if (m_rightTurnSpeed < 0.0f)
 		{
@@ -358,7 +358,7 @@ void SynPosition::LookUpward(bool keydown)
 	}
 	else
 	{
-		m_lookUpSpeed -= m_frameTime* 0.005f;
+		m_lookUpSpeed -= m_frameTime * 0.005f;
 
 		if (m_lookUpSpeed < 0.0f)
 		{
@@ -392,7 +392,7 @@ void SynPosition::LookDownward(bool keydown)
 	}
 	else
 	{
-		m_lookDownSpeed -= m_frameTime* 0.005f;
+		m_lookDownSpeed -= m_frameTime * 0.005f;
 
 		if (m_lookDownSpeed < 0.0f)
 		{
@@ -412,7 +412,8 @@ void SynPosition::LookDownward(bool keydown)
 	return;
 }
 
-void SynPosition::MouseRotate(int* delta){	
+void SynPosition::MouseRotate(int* delta)
+{
 	m_rotationX = delta[1] * 0.2f;
 	m_rotationY = delta[0] * 0.2f;
 }

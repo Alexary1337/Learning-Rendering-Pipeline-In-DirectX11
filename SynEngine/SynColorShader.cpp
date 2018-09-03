@@ -40,9 +40,9 @@ void SynColorShader::Shutdown()
 	return;
 }
 
-bool SynColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix,
-	D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR3 lightDirection, D3DXVECTOR4 ambientColor, D3DXVECTOR4 diffuseColor,
-	D3DXVECTOR3 cameraPosition, D3DXVECTOR4 specularColor, float specularPower)
+bool SynColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, DirectX::XMMATRIX worldMatrix,
+	DirectX::XMMATRIX viewMatrix, DirectX::XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, DirectX::XMFLOAT3 lightDirection, DirectX::XMFLOAT4 ambientColor, DirectX::XMFLOAT4 diffuseColor,
+	DirectX::XMFLOAT3 cameraPosition, DirectX::XMFLOAT4 specularColor, float specularPower)
 {
 	bool result;
 
@@ -75,8 +75,8 @@ bool SynColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	pixelShaderBuffer = 0;
 	
 	// Compile the vertex shader code.
-	result = D3DX11CompileFromFileW(vsFilename, NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
-		&vertexShaderBuffer, &errorMessage, NULL);
+	result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+		&vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		// If the shader failed to compile it should have writen something to the error message.
@@ -94,8 +94,8 @@ bool SynColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	}
 
 	// Compile the pixel shader code.
-	result = D3DX11CompileFromFileW(psFilename, NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
-		&pixelShaderBuffer, &errorMessage, NULL);
+	result = D3DCompileFromFile(psFilename, NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+		&pixelShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		// If the shader failed to compile it should have writen something to the error message.
@@ -298,9 +298,9 @@ void SynColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwn
 	return;
 }
 
-bool SynColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix,
-	D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR3 lightDirection, D3DXVECTOR4 ambientColor,
-	D3DXVECTOR4 diffuseColor, D3DXVECTOR3 cameraPosition, D3DXVECTOR4 specularColor,
+bool SynColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX worldMatrix,
+	DirectX::XMMATRIX viewMatrix, DirectX::XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, DirectX::XMFLOAT3 lightDirection, DirectX::XMFLOAT4 ambientColor,
+	DirectX::XMFLOAT4 diffuseColor, DirectX::XMFLOAT3 cameraPosition, DirectX::XMFLOAT4 specularColor,
 	float specularPower)
 {
 	HRESULT result;
@@ -311,9 +311,12 @@ bool SynColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3D
 	unsigned int bufferNumber;
 
 	// Transpose the matrices to prepare them for the shader.
-	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
-	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	worldMatrix = DirectX::XMMatrixTranspose(worldMatrix);
+	//D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
+	viewMatrix = DirectX::XMMatrixTranspose(viewMatrix);
+	//D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
+	projectionMatrix = DirectX::XMMatrixTranspose(projectionMatrix);
+	//D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
 
 	// Lock the constant buffer so it can be written to.
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

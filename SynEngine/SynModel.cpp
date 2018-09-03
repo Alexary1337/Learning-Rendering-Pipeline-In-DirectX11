@@ -105,11 +105,11 @@ bool SynModel::InitializeBuffers(ID3D11Device* device, char* filename, int meshI
 	// Load the vertex array and index array with data.
 	for(int i=0; i<m_vertexCount; i++)
 	{
-		vertices[i].position = D3DXVECTOR3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		vertices[i].position = DirectX::XMFLOAT3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 		if (importedModel->mMeshes[meshIndex]->HasTextureCoords(0)){
-			vertices[i].texture = D3DXVECTOR2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+			vertices[i].texture = DirectX::XMFLOAT2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 		}
-		vertices[i].normal = D3DXVECTOR3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		vertices[i].normal = DirectX::XMFLOAT3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 	}
 
 	aiReleaseImport(importedModel);

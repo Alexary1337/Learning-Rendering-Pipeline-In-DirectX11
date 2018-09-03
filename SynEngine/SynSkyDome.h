@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include <d3d11.h>
-#include <d3dx10math.h>
 #include <assimp\cimport.h>
 #include <assimp\postprocess.h>
 #include <assimp\scene.h>
@@ -21,7 +20,7 @@ private:
 
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
+		DirectX::XMFLOAT3 position;
 	};
 
 public:
@@ -35,8 +34,8 @@ public:
 
 	int GetIndexCount();
 
-	D3DXVECTOR4 GetApexColor();
-	D3DXVECTOR4 GetCenterColor();
+	DirectX::XMFLOAT4 GetApexColor();
+	DirectX::XMFLOAT4 GetCenterColor();
 
 private:
 	bool LoadSkyDomeModel(char*);
@@ -50,7 +49,7 @@ private:
 	ModelType* m_model;
 	int m_vertexCount, m_indexCount;
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
-	D3DXVECTOR4 m_apexColor, m_centerColor;
+	DirectX::XMFLOAT4 m_apexColor, m_centerColor;
 	unsigned long* m_indices;
 };
 

@@ -1,4 +1,8 @@
 #include "syngraphics.h"
+
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+
 float func(float x, float z);
 SynGraphics::SynGraphics()
 {
@@ -7,7 +11,6 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_Model);
 	SAFE_INIT(m_ColorShader);
 	SAFE_INIT(m_Light);
-	SAFE_INIT(m_Text);
 	SAFE_INIT(m_SkyDome);
 	SAFE_INIT(m_SkyDomeShader);
 	SAFE_INIT(m_Position);
@@ -19,7 +22,8 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_TerrainShader);
 	SAFE_INIT(m_meshCount);
 	SAFE_INIT(m_totalIndexCount);
-	SAFE_INIT(m_translationVector3D);	
+	SAFE_INIT(m_translationVector3D);
+	SAFE_INIT(m_GUI);
 }
 
 SynGraphics::SynGraphics(const SynGraphics& other)
@@ -36,7 +40,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 {
 	bool result;
 
-	D3DXMATRIX baseViewMatrix;
+	DirectX::XMMATRIX baseViewMatrix;
 
 	CONSOLE_OUT("Initializing Direct3D component...");
 	// Create the Direct3D object.
@@ -120,31 +124,17 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 
 	// Initialize the light object.
 	m_Light->SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
-	m_Light->SetDiffuseColor(0.2f, 0.2f, 0.2f, 1.0f);
+	m_Light->SetDiffuseColor(0.4f, 0.4f, 0.4f, 1.0f);
 	m_Light->SetDirection(1.0f, -1.0f, 0.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
 	CONSOLE_OUT("Light component initialized.");
 
-	CONSOLE_OUT("Initializing text component...");
-	// Create the text object.
-	m_Text = new SynText;
-	SAFE_CHECKEXIST(m_Text);
-
-	// Initialize the text object.
-	result = m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
-	if (!result)
-	{
-		MessageBox(hwnd, "Could not initialize the text object.", "Error", MB_OK);
-		return false;
-	}
-	CONSOLE_OUT("Text component initialized.");
-
 	CONSOLE_OUT("Initializing skydome component...");
 	// Create the sky dome object.
 	m_SkyDome = new SynSkyDome;
 	SAFE_CHECKEXIST(m_SkyDome);
-	
+
 	// Initialize the sky dome object.
 	result = m_SkyDome->Initialize(m_D3D->GetDevice());
 	if (!result)
@@ -236,7 +226,12 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Terrain shader component initialized.");
 
-	m_translationVector3D = new D3DXVECTOR3(-135.0f, -10.0f, -135.0f);
+	m_translationVector3D = new DirectX::XMFLOAT3(-135.0f, -10.0f, -135.0f);
+
+
+	m_GUI = new SynGUI();
+	m_GUI->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd);
+
 
 	return true;
 }
@@ -245,13 +240,16 @@ float func(float x, float z)
 {
 	//return 100 - 3 / sqrtf(x*x + z*z) + sinf(sqrtf(x*x + z*z)) + sqrtf(200 - x*x + z*z + 10 * sinf(x) + 10 * sinf(z)) / 1000; //todo
 	//return sinf(x)*cosf(z);
-	return sqrtf(x*x + z*z) + 3 * cosf(sqrtf(x*x + z*z)) + 5;
+	return sqrtf(x*x + z * z) + 3 * cosf(sqrtf(x*x + z * z)) + 5;
 	//return (x*x) - (z*z);
 
 }
 
 void SynGraphics::Shutdown()
 {
+	ImGui_ImplDX11_Shutdown();
+	ImGui::DestroyContext();
+
 	SAFE_DELETE(m_translationVector3D);
 
 	// Release the terrain shader object.
@@ -275,7 +273,7 @@ void SynGraphics::Shutdown()
 	SAFE_DELETE(m_CpuUsage);
 
 	// Release the position object.
-	SAFE_DELETE(m_FpsCounter);	
+	SAFE_DELETE(m_FpsCounter);
 
 	// Release the position object.
 	SAFE_DELETE(m_Timer);
@@ -297,13 +295,6 @@ void SynGraphics::Shutdown()
 		SAFE_DELETE(m_SkyDome);
 	}
 
-	// Release the text object.
-	if (m_Text)
-	{
-		m_Text->Shutdown();
-		SAFE_DELETE(m_Text);
-	}
-	
 	// Release the light object.
 	SAFE_DELETE(m_Light);
 
@@ -324,6 +315,9 @@ void SynGraphics::Shutdown()
 	// Release the camera object.
 	SAFE_DELETE(m_Camera);
 
+	// Release the GUI object.
+	SAFE_DELETE(m_GUI);
+
 	if (m_D3D)
 	{
 		m_D3D->Shutdown();
@@ -337,7 +331,8 @@ bool SynGraphics::Frame()
 	bool result;
 
 	// Do the input frame processing + camera rotation update.
-	m_Position->MouseRotate(m_Input->Frame());
+	m_Position->MouseRotate(m_Input->Frame(!isCursorVisible));
+	
 
 	// Check if the user pressed escape and wants to quit.
 	if (m_Input->IsEscapePressed() == true)
@@ -352,14 +347,6 @@ bool SynGraphics::Frame()
 
 	// Do the frame input processing.
 	result = HandleInput(m_Timer->GetTime());
- 	SAFE_CHECKEXIST(result);
-
-	// Set the frames per second.
-	result = m_Text->SetFps(m_FpsCounter->GetFps(), m_D3D->GetDeviceContext());
-	SAFE_CHECKEXIST(result);
-
-	// Set the cpu usage.
-	result = m_Text->SetCpu(m_CpuUsage->GetCpuPercentage(), m_D3D->GetDeviceContext());
 	SAFE_CHECKEXIST(result);
 
 	// Render the graphics scene.
@@ -392,27 +379,45 @@ bool SynGraphics::HandleInput(float frameTime)
 	m_Position->LookUpward(m_Input->IsKeyPressed(DIK_UP));
 	m_Position->LookDownward(m_Input->IsKeyPressed(DIK_DOWN));
 
+	
 	// Get the view point position/rotation.
 	m_Position->GetPosition(posX, posY, posZ);
-	m_Position->GetRotation(rotX, rotY, rotZ);
 
 	// Set the position of the camera.
 	m_Camera->SetPosition(posX, posY, posZ);
-	m_Camera->SetRotation(rotX, rotY, rotZ);
+	
+	if (!isCursorVisible)
+	{		
+		m_Position->GetRotation(rotX, rotY, rotZ);
+		m_Camera->SetRotation(rotX, rotY, rotZ);
+	}
+
+	if (m_Input->IsEToggled())
+	{
+		isCursorVisible = !isCursorVisible;
+		ShowCursor(isCursorVisible);
+		if (!isCursorVisible)
+		{
+			
+			m_Position->SetRotation(0,0,0);
+			//m_Input->CenterCursor();
+		}
+	}
+
 
 	if (m_Input->IsF1Toggled())
 	{
-		ToggleTerrainWireframe();
+		m_D3D->WireframeTerrainRaster();
 	}
 
 	if (m_Input->IsF2Toggled())
 	{
-		ToggleModelWireframe();
+		m_D3D->WireframeDefaultRaster();
 	}
-	
+
 	if (m_Input->IsF3Toggled())
 	{
-		ToggleSkydomeWireframe();
+		m_D3D->WireframeSkydomeRaster();
 	}
 
 	return true;
@@ -420,8 +425,9 @@ bool SynGraphics::HandleInput(float frameTime)
 
 bool SynGraphics::Render()
 {
-	D3DXVECTOR3 cameraPosition;
-	D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
+
+	DirectX::XMFLOAT3 cameraPosition;
+	DirectX::XMMATRIX viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 	bool result;
 
 	// Clear the buffers to begin the scene.
@@ -440,7 +446,8 @@ bool SynGraphics::Render()
 	cameraPosition = m_Camera->GetPosition();
 
 	// Translate the sky dome to be centered around the camera position.
-	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+	worldMatrix = DirectX::XMMatrixTranslation(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+	//D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 	// Turn off back face culling.
 	m_D3D->TurnSkydomeRaster();
@@ -451,7 +458,7 @@ bool SynGraphics::Render()
 	// Render the sky dome using the sky dome shader.
 	m_SkyDome->Render(m_D3D->GetDeviceContext());
 	m_SkyDomeShader->Render(m_D3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-	m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
+		m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
 
 	// Turn back face culling back on.
 	m_D3D->TurnDefaultRaster();
@@ -463,15 +470,11 @@ bool SynGraphics::Render()
 	m_D3D->TurnZBufferOff();
 
 	// Turn on the alpha blending before rendering the text.
-	m_D3D->TurnOnAlphaBlending();
-
-	// Render the text strings.
-	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
-	SAFE_CHECKEXIST(result);
+	//m_D3D->TurnOnAlphaBlending();
 
 	// Turn off alpha blending after rendering the text.
-	m_D3D->TurnOffAlphaBlending();
-	
+	//m_D3D->TurnOffAlphaBlending();
+
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
@@ -484,46 +487,21 @@ bool SynGraphics::Render()
 	m_D3D->TurnDefaultRaster();
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	D3DXMatrixRotationX(&worldMatrix, 1.6f);
+	worldMatrix = DirectX::XMMatrixRotationX(1.6f);
+	//D3DXMatrixRotationX(&worldMatrix, 1.6f);
+
 	for (int i = 0; i < *m_meshCount; i++)
 	{
 		m_Model[i].Render(m_D3D->GetDeviceContext());
 		result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model[i].GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model[i].GetTexture(), m_Light->GetDirection(),
-				m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+			m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		SAFE_CHECKEXIST(result);
 	}
 
+	// Render user interface
+	m_GUI->Render(m_D3D, m_Light);
+
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();
-	return true;
-}
-
-bool SynGraphics::ToggleTerrainWireframe()
-{
-	bool result;
-
-	result = m_D3D->WireframeTerrainRaster();
-	SAFE_CHECKEXIST(result);
-
-	return true;
-}
-
-bool SynGraphics::ToggleModelWireframe()
-{
-	bool result;
-
-	result = m_D3D->WireframeDefaultRaster();
-	SAFE_CHECKEXIST(result);
-
-	return true;
-}
-
-bool SynGraphics::ToggleSkydomeWireframe()
-{
-	bool result;
-
-	result = m_D3D->WireframeSkydomeRaster();
-	SAFE_CHECKEXIST(result);
-
 	return true;
 }

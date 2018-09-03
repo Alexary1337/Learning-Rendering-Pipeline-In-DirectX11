@@ -4,6 +4,7 @@
 SynSystem::SynSystem()
 {
 	SAFE_INIT(m_Graphics);
+	SAFE_INIT(m_Sound);
 }
 SynSystem::SynSystem(const SynSystem& other)
 {
@@ -37,11 +38,29 @@ bool SynSystem::Initialize()
 	SAFE_CHECKEXIST(result);
 	CONSOLE_OUT("Graphics component initialized.");
 
+	// Create the sound object.
+	m_Sound = new SynSound;
+	SAFE_CHECKEXIST(m_Sound);
+
+	// Initialize the sound object.
+	result = m_Sound->Initialize(m_hwnd);
+	SAFE_CHECKEXIST(result);
+	CONSOLE_OUT("Sound component initialized.");
+
+	PlaySound("../SynEngine/data/savage.wav", NULL, SND_FILENAME | SND_ASYNC); //SND_FILENAME or SND_LOOP
+
 	return true;
 }
 
 void SynSystem::Shutdown()
 {
+	// Release the sound object.
+	if (m_Sound)
+	{
+		m_Sound->Shutdown();
+		SAFE_DELETE(m_Sound);
+	}
+
 	// Release the graphics object.
 	if (m_Graphics)
 	{
@@ -214,8 +233,12 @@ void SynSystem::ShutdownWindows()
 	return;
 }
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+		return true;
+
 	switch (umessage)
 	{
 		// Check if the window is being destroyed.

@@ -18,7 +18,7 @@ public:
 
 	bool Initialize(HINSTANCE, HWND, int, int);
 	void Shutdown();
-	int* Frame();
+	int* Frame(bool);
 
 	bool IsEscapePressed();
 	void GetMouseLocation(int&, int&);
@@ -28,6 +28,7 @@ public:
 	bool IsF1Toggled();
 	bool IsF2Toggled();
 	bool IsF3Toggled();
+	bool IsEToggled();
 
 private:
 	bool ReadKeyboard();
@@ -37,6 +38,7 @@ private:
 	bool m_F1_released;
 	bool m_F2_released;
 	bool m_F3_released;
+	bool m_E_released;
 
 private:
 

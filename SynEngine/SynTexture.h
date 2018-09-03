@@ -3,7 +3,8 @@
 
 #include "common.h"
 #include <d3d11.h>
-#include <d3dx11tex.h>
+#include "DDSTextureLoader.h"
+//#include <t>
 
 class SynTexture
 {

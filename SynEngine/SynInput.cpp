@@ -129,7 +129,7 @@ void SynInput::Shutdown()
 	return;
 }
 
-int* SynInput::Frame()
+int* SynInput::Frame(bool canRotate)
 {
 	bool result;
 
@@ -141,9 +141,13 @@ int* SynInput::Frame()
 	result = ReadMouse();
 	SAFE_CHECKEXIST(result);
 
-	// Process the changes in the mouse and keyboard.
-	ProcessInput();
-
+	if (canRotate)
+	{
+		// Process the changes in the mouse and keyboard.
+		ProcessInput();
+		SetCursorPos(m_screenWidth / 2, m_screenHeight / 2);
+	}
+	
 	return m_mouseDelta;
 }
 
@@ -295,6 +299,24 @@ bool SynInput::IsF3Toggled()
 	else
 	{
 		m_F3_released = true;
+	}
+
+	return false;
+}
+
+bool SynInput::IsEToggled()
+{
+	if (m_keyboardState[DIK_E] & 0x80)
+	{
+		if (m_E_released)
+		{
+			m_E_released = false;
+			return true;
+		}
+	}
+	else
+	{
+		m_E_released = true;
 	}
 
 	return false;

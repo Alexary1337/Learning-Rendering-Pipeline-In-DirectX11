@@ -7,7 +7,6 @@
 #include "synmodel.h"
 #include "syncolorshader.h"
 #include "synlight.h"
-#include "syntext.h"
 #include "synskydome.h"
 #include "synskydomeshader.h"
 #include "synposition.h"
@@ -15,9 +14,9 @@
 #include "synfpscounter.h"
 #include "syncpuusage.h"
 #include "syninput.h"
-#include "synbitmap.h"
 #include "synterrain.h"
 #include "synterrainshader.h"
+#include "SynGUI.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -34,9 +33,6 @@ public:
 	bool Initialize(int, int, HWND, HINSTANCE);
 	void Shutdown();
 	bool Frame();
-	bool ToggleTerrainWireframe();
-	bool ToggleModelWireframe();
-	bool ToggleSkydomeWireframe();
 
 private:
 	bool HandleInput(float frameTime);
@@ -48,7 +44,6 @@ private:
 	SynModel* m_Model;
 	SynColorShader* m_ColorShader;
 	SynLight* m_Light;
-	SynText* m_Text;
 	SynSkyDome* m_SkyDome;
 	SynSkyDomeShader* m_SkyDomeShader;
 	SynPosition* m_Position;
@@ -58,10 +53,13 @@ private:
 	SynInput* m_Input;
 	SynTerrain* m_Terrain;
 	SynTerrainShader* m_TerrainShader;
+	SynGUI* m_GUI;
 	int* m_meshCount;
 	int* m_totalIndexCount;
 
-	D3DXVECTOR3* m_translationVector3D;
+	bool isCursorVisible = false;
+
+	DirectX::XMFLOAT3* m_translationVector3D;
 };
 
 #endif

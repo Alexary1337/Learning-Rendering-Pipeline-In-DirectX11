@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include <d3d11.h>
-#include <d3dx10math.h>
 #include "syntexture.h"
 #include <stdio.h>
 
@@ -12,8 +11,8 @@ class SynTerrain
 private:
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
-		D3DXVECTOR3 normal;
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT3 normal;
 	};
 
 	struct HeightMapType

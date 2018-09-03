@@ -26,6 +26,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float4 color;
 	float3 reflection;
 	float4 specular;
+	float4 specularColorTest;
 
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
@@ -61,7 +62,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	color = color * textureColor;
 
 	// Add the specular component last to the output color.
-	color = saturate(color + specular);
+	color = saturate(color + (specular*specularColor));
 
 	return color;
 }

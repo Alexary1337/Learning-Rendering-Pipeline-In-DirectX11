@@ -116,12 +116,12 @@ bool SynD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd
 	m_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
 	// Convert the name of the video card to a character array and store it.
-	error = wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128);
+	/*error = wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128);
 	if (error != 0)
 	{
 		return false;
-	}
-
+	}*/
+	
 	// Release the display mode list.
 	SAFE_DELETE_ARRAY(displayModeList);
 
@@ -357,17 +357,20 @@ bool SynD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd
 	m_deviceContext->RSSetViewports(1, &viewport);
 
 	// Setup the projection matrix.
-	fieldOfView = (float)D3DX_PI / 4.0f;
+	fieldOfView = (float)DirectX::XM_PI / 4.0f;
 	screenAspect = (float)screenWidth / (float)screenHeight;
 
 	// Create the projection matrix for 3D rendering.
-	D3DXMatrixPerspectiveFovLH(&m_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
+	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+	//D3DXMatrixPerspectiveFovLH(&m_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
 
 	// Initialize the world matrix to the identity matrix.
-	D3DXMatrixIdentity(&m_worldMatrix);
+	m_worldMatrix = DirectX::XMMatrixIdentity();
+	//D3DXMatrixIdentity(&m_worldMatrix);
 	
 	// Create an orthographic projection matrix for 2D rendering.
-	D3DXMatrixOrthoLH(&m_orthoMatrix, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	m_orthoMatrix = DirectX::XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	//D3DXMatrixOrthoLH(&m_orthoMatrix, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
 
 	// Clear the second depth stencil state before setting the parameters.
 	ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
@@ -500,19 +503,29 @@ ID3D11DeviceContext* SynD3D::GetDeviceContext()
 	return m_deviceContext;
 }
 
-void SynD3D::GetProjectionMatrix(D3DXMATRIX& projectionMatrix)
+IDXGISwapChain* SynD3D::GetSwapChain()
+{
+	return m_swapChain;
+}
+
+ID3D11RenderTargetView* SynD3D::GetRenderTargetView()
+{
+	return m_renderTargetView;
+}
+
+void SynD3D::GetProjectionMatrix(DirectX::XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
 	return;
 }
 
-void SynD3D::GetWorldMatrix(D3DXMATRIX& worldMatrix)
+void SynD3D::GetWorldMatrix(DirectX::XMMATRIX& worldMatrix)
 {
 	worldMatrix = m_worldMatrix;
 	return;
 }
 
-void SynD3D::GetOrthoMatrix(D3DXMATRIX& orthoMatrix)
+void SynD3D::GetOrthoMatrix(DirectX::XMMATRIX& orthoMatrix)
 {
 	orthoMatrix = m_orthoMatrix;
 	return;

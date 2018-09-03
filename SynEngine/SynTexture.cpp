@@ -20,7 +20,7 @@ bool SynTexture::Initialize(ID3D11Device* device, WCHAR* filename)
 	HRESULT result;
 
 	// Load the texture in.
-	result = D3DX11CreateShaderResourceViewFromFileW(device, filename, NULL, NULL, &m_texture, NULL);
+	result = DirectX::CreateDDSTextureFromFile(device, filename, NULL, &m_texture, NULL);
 	if (FAILED(result))
 	{
 		return false;

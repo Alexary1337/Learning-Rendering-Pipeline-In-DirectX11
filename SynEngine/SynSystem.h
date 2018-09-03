@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <io.h> 
 #include <fcntl.h>
+#include "SynSound.h"
+
+#include <iostream>
+#pragma comment(lib, "winmm.lib")
 
 using namespace std;
 
@@ -35,6 +39,8 @@ private:
 	HWND m_hwnd;
 
 	SynGraphics* m_Graphics;
+
+	SynSound* m_Sound;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

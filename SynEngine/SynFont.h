@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include <d3d11.h>
-#include <d3dx10math.h>
 #include <fstream>
 using namespace std;
 #include "syntexture.h"
@@ -18,8 +17,8 @@ private:
 	};
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
-		D3DXVECTOR2 texture;
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT2 texture;
 	};
 
 public:

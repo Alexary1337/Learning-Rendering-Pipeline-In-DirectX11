@@ -3,15 +3,14 @@
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dx11.lib")
-#pragma comment(lib, "d3dx10.lib")
-#pragma comment(lib, "assimp.lib")
+//#pragma comment(lib, "d3dx11.lib")
+//#pragma comment(lib, "d3dx10.lib")
+#pragma comment(lib, "assimp-vc140-mt.lib")
 
 #include "common.h"
 #include <dxgi.h>
 #include <d3dcommon.h>
 #include <d3d11.h>
-#include <D3DX10math.h>
 #include <assimp\cimport.h>
 #include <assimp\postprocess.h>
 #include <assimp\scene.h>
@@ -31,10 +30,12 @@ public:
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();
-	
-	void GetProjectionMatrix(D3DXMATRIX&);
-	void GetWorldMatrix(D3DXMATRIX&);
-	void GetOrthoMatrix(D3DXMATRIX&);
+	IDXGISwapChain* GetSwapChain();
+	ID3D11RenderTargetView* GetRenderTargetView();
+
+	void GetProjectionMatrix(DirectX::XMMATRIX&);
+	void GetWorldMatrix(DirectX::XMMATRIX&);
+	void GetOrthoMatrix(DirectX::XMMATRIX&);
 
 	void GetVideoCardInfo(char*, int&);
 	void TurnZBufferOn();
@@ -64,9 +65,9 @@ private:
 	ID3D11DepthStencilState* m_depthDisabledStencilState;
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_rasterState;
-	D3DXMATRIX m_projectionMatrix;
-	D3DXMATRIX m_worldMatrix;
-	D3DXMATRIX m_orthoMatrix;
+	DirectX::XMMATRIX m_projectionMatrix;
+	DirectX::XMMATRIX m_worldMatrix;
+	DirectX::XMMATRIX m_orthoMatrix;
 
 	ID3D11BlendState* m_alphaEnableBlendingState;
 	ID3D11BlendState* m_alphaDisableBlendingState;

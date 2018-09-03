@@ -31,10 +31,10 @@ bool SynSkyDome::Initialize(ID3D11Device* device)
 	SAFE_CHECKEXIST(result);
 
 	// Set the color at the top of the sky dome.
-	m_apexColor = D3DXVECTOR4(0.0f, 0.15f, 0.36f, 1.0f);
+	m_apexColor = DirectX::XMFLOAT4(0.0f, 0.15f, 0.36f, 1.0f);
 
 	// Set the color at the center of the sky dome.
-	m_centerColor = D3DXVECTOR4(0.81f, 0.58f, 0.86f, 1.0f);
+	m_centerColor = DirectX::XMFLOAT4(0.81f, 0.58f, 0.86f, 1.0f);
 
 	return true;
 }
@@ -63,12 +63,12 @@ int SynSkyDome::GetIndexCount()
 	return m_indexCount;
 }
 
-D3DXVECTOR4 SynSkyDome::GetApexColor()
+DirectX::XMFLOAT4 SynSkyDome::GetApexColor()
 {
 	return m_apexColor;
 }
 
-D3DXVECTOR4 SynSkyDome::GetCenterColor()
+DirectX::XMFLOAT4 SynSkyDome::GetCenterColor()
 {
 	return m_centerColor;
 }
@@ -141,7 +141,7 @@ bool SynSkyDome::InitializeBuffers(ID3D11Device* device)
 	// Load the vertex array and index array with data.
 	for (i = 0; i<m_vertexCount; i++)
 	{
-		vertices[i].position = D3DXVECTOR3(m_model[i].x, m_model[i].y, m_model[i].z);
+		vertices[i].position = DirectX::XMFLOAT3(m_model[i].x, m_model[i].y, m_model[i].z);
 	}
 
 	// Set up the description of the vertex buffer.
