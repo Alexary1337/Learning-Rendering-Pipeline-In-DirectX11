@@ -143,6 +143,8 @@
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_impl_dx11.cpp" />
+    <ClCompile Include="Lab1Model.cpp" />
+    <ClCompile Include="Lab1Shader.cpp" />
     <ClCompile Include="SynCpuUsage.cpp" />
     <ClCompile Include="SynFpsCounter.cpp" />
     <ClCompile Include="SynGUI.cpp" />
@@ -172,6 +174,8 @@
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_dx11.h" />
     <ClInclude Include="imgui_internal.h" />
+    <ClInclude Include="Lab1Model.h" />
+    <ClInclude Include="Lab1Shader.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_textedit.h" />
@@ -199,6 +203,18 @@
     <ClInclude Include="SynTimer.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Lab1PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Lab1VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="ModelPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

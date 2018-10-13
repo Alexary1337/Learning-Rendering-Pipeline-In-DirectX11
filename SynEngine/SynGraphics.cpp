@@ -24,6 +24,12 @@ SynGraphics::SynGraphics()
 	SAFE_INIT(m_totalIndexCount);
 	SAFE_INIT(m_translationVector3D);
 	SAFE_INIT(m_GUI);
+	SAFE_INIT(m_Lab1ALetterModel);
+	SAFE_INIT(m_Lab1PLetterModel);
+	SAFE_INIT(m_Lab2CurveModel);
+	SAFE_INIT(m_Lab2CurveSecondModel);
+	SAFE_INIT(m_Lab1Shader);
+
 }
 
 SynGraphics::SynGraphics(const SynGraphics& other)
@@ -117,6 +123,50 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	}
 	CONSOLE_OUT("Model shader component initialized.");
 
+	//----------------------- Lab zone ---------------------------------
+
+	m_Lab1ALetterModel = new Lab1Model;
+	SAFE_CHECKEXIST(m_Lab1ALetterModel);
+	m_Lab1ALetterModel->Initialize(m_D3D->GetDevice(), "../SynEngine/data/ap.txt");
+	
+	m_Lab1PLetterModel = new Lab1Model;
+	SAFE_CHECKEXIST(m_Lab1PLetterModel);
+	m_Lab1PLetterModel->Initialize(m_D3D->GetDevice(), "../SynEngine/data/pp_curve.txt");
+
+	
+	// First half of heart
+	DirectX::XMFLOAT3 p1 = { 0.0f, 0.0f, 0.0f };
+	DirectX::XMFLOAT3 cp1 = { -12.0f, 14.0f, 0.0f };
+	DirectX::XMFLOAT3 cp2 = { -3.0f, 14.0f, 0.0f };
+	DirectX::XMFLOAT3 p2 = { 0.0f, 10.0f, 0.0f };
+	
+	m_Lab2CurveModel = new Lab1Model;
+	SAFE_CHECKEXIST(m_Lab2CurveModel);
+	m_Lab2CurveModel->InitializeBezier(m_D3D->GetDevice(), p1, p2, cp1, cp2);
+
+	// Second half of heart
+	p1 = { 0.0f, 0.0f, 0.0f };
+	cp1 = { 12.0f, 14.0f, 0.0f };
+	cp2 = { 3.0f, 14.0f, 0.0f };
+	p2 = { 0.0f, 10.0f, 0.0f };
+
+	m_Lab2CurveSecondModel = new Lab1Model;
+	SAFE_CHECKEXIST(m_Lab2CurveSecondModel);
+	m_Lab2CurveSecondModel->InitializeBezier(m_D3D->GetDevice(), p1, p2, cp1, cp2);
+
+
+	m_Lab1Shader = new Lab1Shader;
+	SAFE_CHECKEXIST(m_Lab1Shader);
+	result = m_Lab1Shader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, "Could not initialize the lab1 shader object.", "Error", MB_OK);
+		return false;
+	}
+
+	//----------------------- End of Lab zone ---------------------------------
+
+
 	CONSOLE_OUT("Initializing light component...");
 	// Create the light object.
 	m_Light = new SynLight;
@@ -164,7 +214,7 @@ bool SynGraphics::Initialize(int screenWidth, int screenHeight, HWND hwnd, HINST
 	SAFE_CHECKEXIST(m_Position);
 
 	// Set the initial position of the viewer to the same as the initial camera position.
-	m_Position->SetPosition(0.0f, 0.0f, 0.0f);
+	m_Position->SetPosition(120.0f, 8.0f, 0.0f);
 	CONSOLE_OUT("Position component initialized.");
 
 	CONSOLE_OUT("Initializing timer component...");
@@ -312,6 +362,36 @@ void SynGraphics::Shutdown()
 		SAFE_DELETE_ARRAY(m_Model);
 	}
 
+	if (m_Lab1ALetterModel)
+	{
+		m_Lab1ALetterModel->Shutdown();
+		SAFE_DELETE(m_Lab1ALetterModel);
+	}
+
+	if (m_Lab1PLetterModel)
+	{
+		m_Lab1PLetterModel->Shutdown();
+		SAFE_DELETE(m_Lab1PLetterModel);
+	}
+
+	if (m_Lab2CurveModel)
+	{
+		m_Lab2CurveModel->Shutdown();
+		SAFE_DELETE(m_Lab2CurveModel);
+	}
+
+	if (m_Lab2CurveSecondModel)
+	{
+		m_Lab2CurveSecondModel->Shutdown();
+		SAFE_DELETE(m_Lab2CurveSecondModel);
+	}
+	
+	// Release the lab1 shader object.
+	if (m_Lab1Shader)
+	{
+		m_Lab1Shader->Shutdown();
+		SAFE_DELETE(m_Lab1Shader);
+	}
 	// Release the camera object.
 	SAFE_DELETE(m_Camera);
 
@@ -323,6 +403,7 @@ void SynGraphics::Shutdown()
 		m_D3D->Shutdown();
 		SAFE_DELETE(m_D3D);
 	}
+
 	return;
 }
 
@@ -423,6 +504,8 @@ bool SynGraphics::HandleInput(float frameTime)
 	return true;
 }
 
+float inc = 0.01f;
+
 bool SynGraphics::Render()
 {
 
@@ -487,7 +570,9 @@ bool SynGraphics::Render()
 	m_D3D->TurnDefaultRaster();
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+
 	worldMatrix = DirectX::XMMatrixRotationX(1.6f);
+
 	//D3DXMatrixRotationX(&worldMatrix, 1.6f);
 
 	for (int i = 0; i < *m_meshCount; i++)
@@ -497,6 +582,35 @@ bool SynGraphics::Render()
 			m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		SAFE_CHECKEXIST(result);
 	}
+
+
+	//worldMatrix = DirectX::XMMatrixRotationY(inc);
+	//worldMatrix = worldMatrix * DirectX::XMMatrixTranslation(10.0f,0,0);
+	//inc += 0.01f;
+
+	worldMatrix = DirectX::XMMatrixTranslation(104.0f, 0, 40.0f);
+
+	m_Lab1ALetterModel->Render(m_D3D->GetDeviceContext());
+	result = m_Lab1Shader->Render(m_D3D->GetDeviceContext(), m_Lab1ALetterModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	SAFE_CHECKEXIST(result);
+
+
+	worldMatrix = DirectX::XMMatrixTranslation(120.0f, 0, 40.0f);
+
+	m_Lab1PLetterModel->Render(m_D3D->GetDeviceContext());
+	result = m_Lab1Shader->Render(m_D3D->GetDeviceContext(), m_Lab1PLetterModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	SAFE_CHECKEXIST(result);
+
+
+	worldMatrix = DirectX::XMMatrixMultiply(DirectX::XMMatrixTranslation(30.0f, -5.0f, 10.0f),DirectX::XMMatrixScaling(4.0f, 4.0f, 4.0f));
+
+	m_Lab2CurveModel->Render(m_D3D->GetDeviceContext());
+	result = m_Lab1Shader->Render(m_D3D->GetDeviceContext(), m_Lab2CurveModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	SAFE_CHECKEXIST(result);
+
+	m_Lab2CurveSecondModel->Render(m_D3D->GetDeviceContext());
+	result = m_Lab1Shader->Render(m_D3D->GetDeviceContext(), m_Lab2CurveModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	SAFE_CHECKEXIST(result);
 
 	// Render user interface
 	m_GUI->Render(m_D3D, m_Light);

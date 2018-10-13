@@ -47,7 +47,7 @@ bool SynSystem::Initialize()
 	SAFE_CHECKEXIST(result);
 	CONSOLE_OUT("Sound component initialized.");
 
-	PlaySound("../SynEngine/data/savage.wav", NULL, SND_FILENAME | SND_ASYNC); //SND_FILENAME or SND_LOOP
+	//PlaySound("../SynEngine/data/savage.wav", NULL, SND_FILENAME | SND_ASYNC); //SND_FILENAME or SND_LOOP
 
 	return true;
 }

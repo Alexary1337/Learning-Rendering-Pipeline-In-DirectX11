@@ -17,6 +17,8 @@
 #include "synterrain.h"
 #include "synterrainshader.h"
 #include "SynGUI.h"
+#include "Lab1Model.h"
+#include "Lab1Shader.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -54,6 +56,14 @@ private:
 	SynTerrain* m_Terrain;
 	SynTerrainShader* m_TerrainShader;
 	SynGUI* m_GUI;
+
+	Lab1Shader* m_Lab1Shader;
+	Lab1Model* m_Lab1ALetterModel;
+	Lab1Model* m_Lab1PLetterModel;
+	Lab1Model* m_Lab2CurveModel;
+	Lab1Model* m_Lab2CurveSecondModel;
+
+
 	int* m_meshCount;
 	int* m_totalIndexCount;
 

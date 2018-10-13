@@ -28,6 +28,15 @@
     <Filter Include="Header Files\GUI\imgui">
       <UniqueIdentifier>{10b58f21-3689-4c71-a6dd-686b3cb0a578}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Lab1">
+      <UniqueIdentifier>{418911ed-14e1-4d8f-8507-3e003d21a7aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lab1">
+      <UniqueIdentifier>{dbaf31f5-3656-4b13-8b35-e57094a1a883}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lab1\Shaders">
+      <UniqueIdentifier>{e11e4736-42b4-4989-901b-c5a1d4216537}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SynD3D.cpp">
@@ -107,6 +116,12 @@
     </ClCompile>
     <ClCompile Include="SynSound.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lab1Model.cpp">
+      <Filter>Source Files\Lab1</Filter>
+    </ClCompile>
+    <ClCompile Include="Lab1Shader.cpp">
+      <Filter>Source Files\Lab1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +215,12 @@
     <ClInclude Include="SynSound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Lab1Model.h">
+      <Filter>Header Files\Lab1</Filter>
+    </ClInclude>
+    <ClInclude Include="Lab1Shader.h">
+      <Filter>Header Files\Lab1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ModelPixelShader.hlsl">
@@ -219,6 +240,12 @@
     </FxCompile>
     <FxCompile Include="TerrainVertexShader.hlsl">
       <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Lab1VertexShader.hlsl">
+      <Filter>Source Files\Lab1\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Lab1PixelShader.hlsl">
+      <Filter>Source Files\Lab1\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
